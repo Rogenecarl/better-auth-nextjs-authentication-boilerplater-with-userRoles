@@ -44,13 +44,16 @@ cp example.env .env
 4. Fill in the required environment variables:
 
 ```
-BETTER_AUTH_SECRET=your_secure_auth_secret
-BETTER_AUTH_URL=http://localhost:3000/api/auth
+BETTER_AUTH_SECRET=bREupsZuAQX8ApVinYeN8GYHFLbDcGvs
+BETTER_AUTH_URL=http://localhost:3000
 
-# to access frontend from the server
+# from server to client
 NEXT_PUBLIC_API_URL=http://localhost:3000
 
-DATABASE_URL=postgresql://username:password@localhost:5432/betterauth
+# Connect to Supabase via connection pooling
+DATABASE_URL=
+# Direct connection to the database. Used for migrations
+DIRECT_URL=
 ```
 
 5. Initialize the database:
