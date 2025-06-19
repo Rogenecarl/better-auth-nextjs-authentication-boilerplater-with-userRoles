@@ -7,62 +7,61 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
 
-import { signUp } from "@/lib/auth-client";
-import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { signUpEmailAction } from "@/actions/sign-up-email.action";
+import {
+  registerSchema,
+  type RegisterSchemaType,
+} from "@/components/schemas/register-schema";
 import { useZodForm } from "@/components/hooks/use-zod-form";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface RegisterFormProps extends React.ComponentProps<"form"> {
   className?: string;
 }
 
-// Define validation schema with Zod
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
-
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const { errors, handleSubmit, setErrors } = useZodForm(registerSchema);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const mutation = useMutation({
-    mutationFn: async (data: RegisterFormValues) => {
-      // Clear any previous errors
-      setSubmitError(null);
-      
+  const onFormSubmit = async (data: RegisterSchemaType) => {
+    setSubmitError(null);
+    setIsLoading(true);
+
+    try {
       toast.loading("Creating account...", {
         id: "signup",
       });
-      
-      const { data: response, error } = await signUp.email(data);
-      
-      if (error) {
-        throw new Error(error.message || "Failed to create account");
+
+      const response = await signUpEmailAction(data);
+
+      // Handle the response
+      if (response?.error) {
+        // If there are field-specific errors, map them to the form
+        if (response.error.errors) {
+          setErrors(response.error.errors as any);
+          throw new Error(response.error.message || "Validation error");
+        }
+
+        // Otherwise, throw the general error
+        throw new Error(response.error.message || "Failed to create account");
       }
-      
-      return response;
-    },
-    onSuccess: () => {
+
       toast.success("Account created successfully", {
         id: "signup",
       });
-    },
-    onError: (error: Error) => {
+
+      router.push("/profile");
+    } catch (error: any) {
       toast.error(error.message || "Failed to create account", {
         id: "signup",
       });
       setSubmitError(error.message || "Failed to create account");
-    },
-  });
-
-  const onFormSubmit = (data: RegisterFormValues) => {
-    setSubmitError(null);
-    mutation.mutate(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -110,8 +109,8 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? "Signing Up..." : "Sign Up"}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Signing Up..." : "Sign Up"}
         </Button>
 
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">

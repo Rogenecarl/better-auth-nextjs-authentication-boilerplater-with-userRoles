@@ -7,60 +7,60 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
 
-import { signIn } from "@/lib/auth-client";
-import { useMutation } from "@tanstack/react-query";
+import { signInEmailAction } from "@/actions/sign-in-email.action";
+import {
+  loginSchema,
+  type LoginSchemaType,
+} from "@/components/schemas/login-schema";
 import { useZodForm } from "@/components/hooks/use-zod-form";
 import { useState } from "react";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
 
 interface LoginFormProps extends React.ComponentProps<"form"> {
   className?: string;
 }
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 export function LoginForm({ className, ...props }: LoginFormProps) {
-  const { errors, handleSubmit } = useZodForm(loginSchema);
+  const { errors, handleSubmit, setErrors } = useZodForm(loginSchema);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const mutation = useMutation({
-    mutationFn: async (data: LoginFormValues) => {
-      // Clear any previous errors
-      setSubmitError(null);
+  const onFormSubmit = async (data: LoginSchemaType) => {
+    setSubmitError(null);
+    setIsLoading(true);
 
+    try {
       toast.loading("Logging in...", {
         id: "login",
       });
 
-      const { data: response, error } = await signIn.email(data);
+      const response = await signInEmailAction(data);
 
-      if (error) {
-        throw new Error(error.message || "Failed to login");
+      // Handle the response
+      if (response?.error) {
+        // If there are field-specific errors, map them to the form
+        if (response.error.errors) {
+          setErrors(response.error.errors as any);
+          throw new Error(response.error.message || "Validation error");
+        }
+
+        // Otherwise, throw the general error
+        throw new Error(response.error.message || "Failed to login");
       }
 
-      return response;
-    },
-    onSuccess: () => {
       toast.success("Logged in successfully", {
         id: "login",
       });
-    },
-    onError: (error: Error) => {
+      router.push("/profile");
+    } catch (error: any) {
       toast.error(error.message || "Failed to login", {
         id: "login",
       });
       setSubmitError(error.message || "Failed to login");
-    },
-  });
-
-  const onFormSubmit = (data: LoginFormValues) => {
-    setSubmitError(null);
-    mutation.mutate(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,8 +108,8 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
             <p className="text-sm text-red-500">{errors.password}</p>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? "Logging in..." : "Login"}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">

@@ -108,6 +108,9 @@ npm install sonner next-themes
 
 # Install shadcn components (CLI)
 npx shadcn-ui@latest init
+
+# for password hashing
+npm install @node-rs/argon2
 ```
 
 ## 📊 Database Schema
