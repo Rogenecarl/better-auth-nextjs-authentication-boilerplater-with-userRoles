@@ -59,7 +59,7 @@ cp example.env .env
 Fill in the required environment variables:
 
 ```
-BETTER_AUTH_SECRET=
+BETTER_AUTH_SECRET= Your better auth secret || generate from better auth
 BETTER_AUTH_URL=http://localhost:3000
 
 # from server to client
