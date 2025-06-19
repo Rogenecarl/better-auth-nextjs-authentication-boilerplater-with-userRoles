@@ -7,31 +7,67 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
 
+import { signUp } from "@/lib/auth-client";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { useZodForm } from "@/components/hooks/use-zod-form";
+import { useState } from "react";
+
 interface RegisterFormProps extends React.ComponentProps<"form"> {
   className?: string;
 }
 
+// Define validation schema with Zod
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
-  const handleSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
+  const { errors, handleSubmit, setErrors } = useZodForm(registerSchema);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const formData = new FormData(evt.target as HTMLFormElement);
+  const mutation = useMutation({
+    mutationFn: async (data: RegisterFormValues) => {
+      // Clear any previous errors
+      setSubmitError(null);
+      
+      toast.loading("Creating account...", {
+        id: "signup",
+      });
+      
+      const { data: response, error } = await signUp.email(data);
+      
+      if (error) {
+        throw new Error(error.message || "Failed to create account");
+      }
+      
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully", {
+        id: "signup",
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create account", {
+        id: "signup",
+      });
+      setSubmitError(error.message || "Failed to create account");
+    },
+  });
 
-    const name = String(formData.get("name"));
-    if (!name) return toast.error("Please enter your name");
-
-    const email = String(formData.get("email"));
-    if (!email) return toast.error("Please enter your email");
-
-    const password = String(formData.get("password"));
-    if (!password) return toast.error("Please enter your password");
-
-    console.log({ name, email, password });
+  const onFormSubmit = (data: RegisterFormValues) => {
+    setSubmitError(null);
+    mutation.mutate(data);
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onFormSubmit)}
       className={cn("flex flex-col gap-6", className)}
       {...props}
     >
@@ -42,24 +78,40 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
         </p>
       </div>
 
+      {submitError && (
+        <div className="text-red-500 text-sm text-center">{submitError}</div>
+      )}
+
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="name">Name</Label>
           <Input id="name" name="name" placeholder="John Mike" />
+          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" placeholder="m@example.com" />
+          <Input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="m@example.com"
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
+          )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
           <Input id="password" type="password" name="password" />
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password}</p>
+          )}
         </div>
 
-        <Button type="submit" className="w-full">
-          Sign Up
+        <Button type="submit" className="w-full" disabled={mutation.isPending}>
+          {mutation.isPending ? "Signing Up..." : "Sign Up"}
         </Button>
 
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -68,7 +120,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
           </span>
         </div>
 
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" type="button">
           <svg
             className="mr-2 h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
