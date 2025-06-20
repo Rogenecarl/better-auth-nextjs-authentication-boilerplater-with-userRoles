@@ -18,7 +18,7 @@ export const GetStartedButton = () => {
   const href = session ? "/profile" : "/auth/login";
 
   return (
-    <div>
+    <div className="flex flex-col items-center gap-4">
       <Button size="lg" className="opacity-50" asChild>
         <Link href={href}>Get Started</Link>
       </Button>

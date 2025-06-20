@@ -24,7 +24,7 @@ export function useZodForm<T extends z.ZodType>(schema: T) {
   };
 
   const handleSubmit = (
-    onSubmit: (data: FormValues) => void | Promise<void>
+    onSubmit: (data: FormValues, formData: FormData) => void | Promise<void>
   ) => {
     return (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -47,9 +47,18 @@ export function useZodForm<T extends z.ZodType>(schema: T) {
 
       const result = validate(formValues);
       if (result.success && result.data) {
-        onSubmit(result.data);
+        onSubmit(result.data, formData);
       }
     };
+  };
+
+  // Generate a FormData object from the validated data
+  const createFormData = (data: FormValues): FormData => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+    return formData;
   };
 
   return {
@@ -57,5 +66,6 @@ export function useZodForm<T extends z.ZodType>(schema: T) {
     handleSubmit,
     validate,
     setErrors,
+    createFormData,
   };
 } 

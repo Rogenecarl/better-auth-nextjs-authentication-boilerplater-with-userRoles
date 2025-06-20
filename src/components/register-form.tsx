@@ -8,13 +8,13 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import { signUpEmailAction } from "@/actions/sign-up-email.action";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   registerSchema,
   type RegisterSchemaType,
 } from "@/components/schemas/register-schema";
 import { useZodForm } from "@/components/hooks/use-zod-form";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 interface RegisterFormProps extends React.ComponentProps<"form"> {
   className?: string;
@@ -26,39 +26,30 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const onFormSubmit = async (data: RegisterSchemaType) => {
+  const onFormSubmit = async (data: RegisterSchemaType, formData: FormData) => {
     setSubmitError(null);
     setIsLoading(true);
 
     try {
-      toast.loading("Creating account...", {
-        id: "signup",
+      toast.loading("Signing up...", {
+        id: "register",
       });
 
-      const response = await signUpEmailAction(data);
+      const response = await signUpEmailAction(formData);
 
-      // Handle the response
       if (response?.error) {
-        // If there are field-specific errors, map them to the form
-        if (response.error.errors) {
-          setErrors(response.error.errors as any);
-          throw new Error(response.error.message || "Validation error");
-        }
-
-        // Otherwise, throw the general error
-        throw new Error(response.error.message || "Failed to create account");
+        throw new Error(response.error);
       }
 
-      toast.success("Account created successfully", {
-        id: "signup",
+      toast.success("Registration complete. You're all set.", {
+        id: "register",
       });
-
-      router.push("/profile");
+      router.push("/auth/login");
     } catch (error: any) {
-      toast.error(error.message || "Failed to create account", {
-        id: "signup",
+      toast.error(error.message || "Failed to register", {
+        id: "register",
       });
-      setSubmitError(error.message || "Failed to create account");
+      setSubmitError(error.message || "Failed to register");
     } finally {
       setIsLoading(false);
     }

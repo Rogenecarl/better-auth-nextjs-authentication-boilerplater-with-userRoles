@@ -26,7 +26,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const onFormSubmit = async (data: LoginSchemaType) => {
+  const onFormSubmit = async (data: LoginSchemaType, formData: FormData) => {
     setSubmitError(null);
     setIsLoading(true);
 
@@ -35,18 +35,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         id: "login",
       });
 
-      const response = await signInEmailAction(data);
+      const response = await signInEmailAction(formData);
 
-      // Handle the response
       if (response?.error) {
-        // If there are field-specific errors, map them to the form
-        if (response.error.errors) {
-          setErrors(response.error.errors as any);
-          throw new Error(response.error.message || "Validation error");
-        }
-
-        // Otherwise, throw the general error
-        throw new Error(response.error.message || "Failed to login");
+        throw new Error(response.error);
       }
 
       toast.success("Logged in successfully", {

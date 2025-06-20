@@ -3,7 +3,7 @@ import { RegisterForm } from "@/components/register-form";
 import Link from "next/link";
 import { ReturnButton } from "@/components/return-button";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

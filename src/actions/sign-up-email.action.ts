@@ -1,118 +1,42 @@
 "use server";
 
-import {
-  registerSchema,
-  type RegisterSchemaType,
-} from "@/components/schemas/register-schema";
+import { registerSchema } from "@/components/schemas/register-schema";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { APIError } from "better-auth/api";
 
-// Define response type for better type safety
-type ActionResponse = {
-  data: { id?: string; email?: string; name?: string } | null;
-  error: { 
-    message: string;
-    errors?: Record<string, string>;
-  } | null;
-};
+export async function signUpEmailAction(formData: FormData) {
+  const name = String(formData.get("name"));
+  const email = String(formData.get("email"));
+  const password = String(formData.get("password"));
 
-// Validate input data using the shared schema
-const validateRegistration = async (formData: RegisterSchemaType) => {
-  const result = registerSchema.safeParse(formData);
+  // Validate using the imported register schema
+  const result = registerSchema.safeParse({ name, email, password });
 
   if (!result.success) {
-    return {
-      validated: false,
-      error: {
-        message: "Invalid form data",
-        errors: result.error.flatten().fieldErrors,
-      },
-      data: null,
-    };
+    // Get the first error message
+    const fieldErrors = result.error.flatten().fieldErrors;
+    const firstError =
+      Object.values(fieldErrors)[0]?.[0] || "Invalid form data";
+    return { error: firstError };
   }
 
-  return {
-    validated: true,
-    data: result.data,
-  };
-};
-
-export async function signUpEmailAction(formData: RegisterSchemaType): Promise<ActionResponse> {
   try {
-    // Validate input data
-    const validationResult = await validateRegistration(formData);
+    await auth.api.signUpEmail({
+      headers: await headers(),
+      body: {
+        name,
+        email,
+        password,
+      },
+    });
 
-    if (!validationResult.validated) {
-      // Handle validation error - transform possible string arrays to strings
-      const fieldErrors: Record<string, string> = {};
-      
-      if (validationResult.error?.errors) {
-        Object.entries(validationResult.error.errors).forEach(([key, value]) => {
-          fieldErrors[key] = Array.isArray(value) ? value[0] : String(value);
-        });
-      }
-      
-      return {
-        error: {
-          message: "Invalid form data",
-          errors: fieldErrors,
-        },
-        data: null,
-      };
+    return { error: null };
+  } catch (err) {
+    if (err instanceof APIError) {
+      return { error: err.message };
     }
 
-    if (!validationResult.data) {
-      return {
-        error: { message: "Invalid form data" },
-        data: null,
-      };
-    }
-
-    // Call authentication API to sign up user
-    try {
-      const user = await auth.api.signUpEmail({
-        body: {
-          name: validationResult.data.name,
-          email: validationResult.data.email,
-          password: validationResult.data.password,
-        },
-      });
-
-      // Return successful response with user data
-      return {
-        data: {
-          id: user.user.id,
-          email: user.user.email,
-          name: user.user.name,
-        },
-        error: null,
-      };
-    } catch (signupError: any) {
-      // Handle specific email-in-use error
-      if (signupError.message?.toLowerCase().includes("email") && 
-          signupError.message?.toLowerCase().includes("use")) {
-        return {
-          error: { 
-            message: "Email already in use",
-            errors: { email: "This email is already registered" }
-          },
-          data: null,
-        };
-      }
-      
-      // Handle other signup errors
-      return {
-        error: { 
-          message: signupError.message || "Failed to create account",
-        },
-        data: null,
-      };
-    }
-    
-  } catch (error: any) {
-    console.error("Sign up error:", error);
-    return {
-      error: { message: error?.message || "Failed to create account" },
-      data: null,
-    };
+    return { error: "Internal Server Error" };
   }
 }
