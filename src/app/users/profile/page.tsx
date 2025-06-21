@@ -10,7 +10,9 @@ export default async function Page() {
     headers: await headers(),
   });
 
-  if (!session) {
+  if (!session) redirect("/auth/login");
+
+  if (session.user.role !== "USER") {
     redirect("/auth/login");
   }
 

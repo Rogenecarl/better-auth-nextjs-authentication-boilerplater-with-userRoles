@@ -36,6 +36,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       });
 
       const response = await signInEmailAction(formData);
+      console.log("Login response:", response);
 
       if (response?.error) {
         throw new Error(response.error);
@@ -44,7 +45,26 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       toast.success("Logged in successfully", {
         id: "login",
       });
-      router.push("/profile");
+
+      // Normalize role for comparison
+      const userRole = String(response.role || "").toUpperCase();
+      console.log("User role for routing:", userRole);
+
+      // Handle routing based on role
+      switch (userRole) {
+        case "ADMIN":
+          console.log("Redirecting to admin dashboard");
+          router.push("/admin/dashboard");
+          break;
+        case "HEALTH_PROVIDER":
+          console.log("Redirecting to health provider dashboard");
+          router.push("/healthproviders/dashboard");
+          break;
+        default:
+          console.log("Redirecting to user profile");
+          router.push("/users/profile");
+          break;
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to login", {
         id: "login",
