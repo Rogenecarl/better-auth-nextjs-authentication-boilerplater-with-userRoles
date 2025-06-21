@@ -1,7 +1,7 @@
 "use server";
 
 import { registerSchema } from "@/components/schemas/register-schema";
-import { auth } from "@/lib/auth";
+import { auth, ErrorCode } from "@/lib/auth";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 
@@ -34,7 +34,24 @@ export async function signUpEmailAction(formData: FormData) {
     return { error: null };
   } catch (err) {
     if (err instanceof APIError) {
-      return { error: err.message };
+      const errCode = err.body ? (err.body.code as ErrorCode) : "UNKNOWN";
+
+      switch (errCode) {
+        case "USER_ALREADY_EXISTS": {
+          return { error: "Something went wrong. Please try again." };
+        }
+        case "INVALID_PASSWORD": {
+          return { error: "Invalid password" };
+        }
+        case "INVALID_EMAIL": {
+          return {
+            error: "Invalid email. Please enter a valid email address.",
+          };
+        }
+        default: {
+          return { error: err.message };
+        }
+      }
     }
 
     return { error: "Internal Server Error" };
