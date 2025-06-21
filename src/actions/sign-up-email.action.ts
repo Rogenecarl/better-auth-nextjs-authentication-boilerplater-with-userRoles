@@ -28,6 +28,7 @@ export async function signUpEmailAction(formData: FormData) {
         name,
         email,
         password,
+        role: "USER",
       },
     });
 

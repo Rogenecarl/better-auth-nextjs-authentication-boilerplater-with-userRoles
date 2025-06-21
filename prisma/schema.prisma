@@ -9,6 +9,12 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum UserRole {
+  ADMIN
+  USER
+  HEALTH_PROVIDER
+}
+
 model Post {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
@@ -32,6 +38,7 @@ model User {
   email         String  @unique
   emailVerified Boolean
   image         String?
+  role          UserRole
 
   sessions Session[]
   accounts Account[]

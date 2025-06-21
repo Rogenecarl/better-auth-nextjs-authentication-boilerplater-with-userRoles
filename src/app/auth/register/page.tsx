@@ -1,34 +1,28 @@
 import { GalleryVerticalEnd } from "lucide-react";
-import { RegisterForm } from "@/components/register-form";
 import Link from "next/link";
+import { RegisterRoles } from "@/components/register-roles";
 import { ReturnButton } from "@/components/return-button";
 
-export default async function RegisterPage() {
+export default async function RegisterRolesPage() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
+    <div className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-8 md:py-12">
+      <div className="w-full max-w-5xl">
+        {/* <div className="flex max-w-4xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-medium">
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <GalleryVerticalEnd className="size-4" />
             </div>
-            Acme Inc.
+            <span className="hidden sm:inline">Acme Inc.</span>
           </Link>
           <ReturnButton href="/" label="Home" />
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <RegisterForm />
+        </div> */}
+        
+        <div className="flex w-full items-center justify-center">
+          <div className="w-full max-w-4xl">
+            <RegisterRoles />
           </div>
         </div>
       </div>
-      <div className="bg-muted relative hidden lg:block">
-        <img
-          src="/test.svg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
-      </div>
     </div>
   );
-}
+} 

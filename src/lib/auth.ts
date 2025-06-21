@@ -48,6 +48,13 @@ export const auth = betterAuth({
       }
     }),
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: ["USER", "HEALTH_PROVIDER", "ADMIN"],
+      },
+    },
+  },
   session: {
     expiresIn: 30 * 24 * 60 * 60, // 30 days
   },
