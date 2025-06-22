@@ -12,8 +12,6 @@
 
 </div>
 
-3:06:01 i stopped here
-
 A modern authentication solution built with Next.js 15, Prisma, and better-auth. This project provides a secure and customizable authentication system for web applications with form validation using Zod and TanStack React Query.
 
 ## 🚀 Features
@@ -71,6 +69,9 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 DATABASE_URL=postgresql://username:password@host:port/database
 # Direct connection to the database. Used for migrations
 DIRECT_URL=postgresql://username:password@host:port/database
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
 
 ### 4. Initialize the database
