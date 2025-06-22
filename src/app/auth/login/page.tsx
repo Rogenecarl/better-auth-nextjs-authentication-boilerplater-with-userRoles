@@ -3,6 +3,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
 import Link from "next/link";
 import { ReturnButton } from "@/components/return-button";
+import { SignInOuthButton } from "@/components/sign-in-outh-button";
 
 export default async function LoginPage() {
   return (
@@ -20,6 +21,18 @@ export default async function LoginPage() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm />
+            <div className="pt-4">
+              <SignInOuthButton provider="google" />
+            </div>
+            <div className="pt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/auth/register"
+                className="underline underline-offset-4"
+              >
+                Sign up
+              </Link>
+            </div>
           </div>
         </div>
       </div>

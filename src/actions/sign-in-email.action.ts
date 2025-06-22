@@ -7,7 +7,7 @@ import { APIError } from "better-auth/api";
 import { prisma } from "@/lib/prisma";
 
 // Helper function to add delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function signInEmailAction(formData: FormData) {
   const headersList = await headers();
@@ -56,7 +56,7 @@ export async function signInEmailAction(formData: FormData) {
     // Fallback: Look up the user directly from the database
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { role: true }
+      select: { role: true },
     });
 
     console.log("User from database:", user);

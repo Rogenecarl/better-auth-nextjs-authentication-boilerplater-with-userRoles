@@ -13,7 +13,7 @@ export default async function Page() {
   if (!session) redirect("/auth/login");
 
   if (session.user.role !== "USER") {
-    redirect("/auth/login");
+    redirect("/api/auth/redirect");
   }
 
   return (

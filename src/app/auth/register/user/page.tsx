@@ -2,6 +2,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { RegisterForm } from "@/components/register-form";
 import Link from "next/link";
 import { ReturnButton } from "@/components/return-button";
+import { SignInOuthButton } from "@/components/sign-in-outh-button";
 
 export default async function RegisterUserPage() {
   return (
@@ -18,13 +19,19 @@ export default async function RegisterUserPage() {
         </div>
         <div className="flex flex-1 items-center justify-center py-6">
           <div className="w-full max-w-md">
-            <div className="mb-8 text-center">
-              <h1 className="text-2xl font-bold mb-2">Create Your Account</h1>
-              <p className="text-muted-foreground text-sm">
-                Fill in your details to create a personal account
-              </p>
-            </div>
             <RegisterForm />
+            <div className="pt-4">
+              <SignInOuthButton provider="google" signUp />
+              <div className="pt-4 text-center text-sm">
+                Already have an account?{" "}
+                <Link
+                  href="/auth/login"
+                  className="underline underline-offset-4"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

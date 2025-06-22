@@ -12,6 +12,8 @@
 
 </div>
 
+3:06:01 i stopped here
+
 A modern authentication solution built with Next.js 15, Prisma, and better-auth. This project provides a secure and customizable authentication system for web applications with form validation using Zod and TanStack React Query.
 
 ## 🚀 Features
