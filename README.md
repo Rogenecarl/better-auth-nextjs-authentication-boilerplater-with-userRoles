@@ -114,6 +114,11 @@ npx shadcn-ui@latest init
 
 # for password hashing
 npm install @node-rs/argon2
+
+# for email verification
+npm install nodemailer
+
+npm install @types/nodemailer -D
 ```
 
 ## 📊 Database Schema
