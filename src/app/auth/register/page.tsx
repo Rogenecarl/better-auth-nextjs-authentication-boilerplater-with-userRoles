@@ -3,7 +3,7 @@ import Link from "next/link";
 import { RegisterRoles } from "@/components/register-roles";
 import { ReturnButton } from "@/components/return-button";
 
-export default async function RegisterRolesPage() {
+export default function RegisterRolesPage() {
   return (
     <div className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-8 md:py-12">
       <div className="w-full max-w-5xl">
@@ -16,7 +16,7 @@ export default async function RegisterRolesPage() {
           </Link>
           <ReturnButton href="/" label="Home" />
         </div> */}
-        
+
         <div className="flex w-full items-center justify-center">
           <div className="w-full max-w-4xl">
             <RegisterRoles />
@@ -25,4 +25,4 @@ export default async function RegisterRolesPage() {
       </div>
     </div>
   );
-} 
+}
