@@ -28,6 +28,17 @@ export const auth = betterAuth({
       verify: verifyPassword,
     },
     requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: 10 * 60, // 10 minutes
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmailAction({
+        to: user.email,
+        subject: "Reset your password",
+        meta: {
+          description: "Click the button below to reset your password.",
+          link: url,
+        },
+      });
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
@@ -74,6 +85,7 @@ export const auth = betterAuth({
       }
     }),
   },
+  //social providers roles
   databaseHooks: {
     user: {
       create: {

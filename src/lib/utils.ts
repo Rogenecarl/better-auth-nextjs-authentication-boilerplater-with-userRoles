@@ -7,11 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getValidDomains() {
   const domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com"];
-
-  if (process.env.NODE_ENV === "development") {
-    domains.push("example.com");
-  }
-
   return domains;
 }
 

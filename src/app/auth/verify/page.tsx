@@ -32,6 +32,8 @@ export default async function Page({ searchParams }: PageProps) {
               <p className="text-destructive">
                 {error === "invalid_token" || error === "token_expired"
                   ? "The verification link is invalid or has expired. Please request a new verification link."
+                  : error === "email_not_verified"
+                  ? "Your email is not verified. Please verify your email to continue."
                   : "Oops! Something went wrong. Please try again."}
               </p>
             </div>

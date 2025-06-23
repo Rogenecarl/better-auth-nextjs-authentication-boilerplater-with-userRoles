@@ -41,10 +41,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
         throw new Error(response.error);
       }
 
-      toast.success("Registration complete. You're all set.", {
+      toast.success("Registration complete. Please verify your email.", {
         id: "register",
       });
-      router.push("/auth/login");
+      router.push("/auth/register/success");
     } catch (error: any) {
       toast.error(error.message || "Failed to register", {
         id: "register",

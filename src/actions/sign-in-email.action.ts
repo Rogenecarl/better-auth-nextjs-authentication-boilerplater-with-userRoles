@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 import { prisma } from "@/lib/prisma";
+import { ErrorCode } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 // Helper function to add delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,17 +38,13 @@ export async function signInEmailAction(formData: FormData) {
       },
     });
 
-    console.log("Auth response:", authResponse);
-
     // Add a small delay
-    await delay(500);
+    await delay(200);
 
     // Try to get session first
     const session = await auth.api.getSession({
       headers: headersList,
     });
-
-    console.log("Session after delay:", session);
 
     // If session has role, use it
     if (session?.user?.role) {
@@ -59,19 +57,24 @@ export async function signInEmailAction(formData: FormData) {
       select: { role: true },
     });
 
-    console.log("User from database:", user);
-
+    //if user is found, return the role
     if (user) {
       // Return the role as a string
       return { error: null, role: user.role.toString() };
     }
 
-    // Default to USER role if nothing else works
+    //if user is not found, return the USER role
     return { error: null, role: "USER" };
   } catch (err) {
-    console.error("Login error:", err);
     if (err instanceof APIError) {
-      return { error: err.message };
+      const errCode = err.body ? (err.body.code as ErrorCode) : "UNKNOWN";
+
+      switch (errCode) {
+        case "EMAIL_NOT_VERIFIED":
+          redirect("/auth/verify?error=email_not_verified");
+        default:
+          return { error: err.message };
+      }
     }
 
     return { error: "Internal Server Error" };

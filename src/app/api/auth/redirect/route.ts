@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     // Determine the dashboard URL based on the role
     const dashboardUrl =
-      roleDashboards[role as keyof typeof roleDashboards] || "/profile";
+      roleDashboards[role as keyof typeof roleDashboards] || "/";
 
     // Redirect to the appropriate dashboard
     return NextResponse.redirect(new URL(dashboardUrl, req.url));

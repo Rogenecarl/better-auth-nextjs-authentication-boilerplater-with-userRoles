@@ -36,7 +36,6 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       });
 
       const response = await signInEmailAction(formData);
-      console.log("Login response:", response);
 
       if (response?.error) {
         throw new Error(response.error);
@@ -46,27 +45,29 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         id: "login",
       });
 
-
       // Normalize role for comparison
       const userRole = String(response.role || "").toUpperCase();
-      console.log("User role for routing:", userRole);
 
       // Handle routing based on role
       switch (userRole) {
         case "ADMIN":
-          console.log("Redirecting to admin dashboard");
           router.push("/admin/dashboard");
           break;
         case "HEALTH_PROVIDER":
-          console.log("Redirecting to health provider dashboard");
           router.push("/healthproviders/dashboard");
           break;
         default:
-          console.log("Redirecting to user profile");
           router.push("/profile");
           break;
       }
     } catch (error: any) {
+      if (error.message === "NEXT_REDIRECT") {
+        toast.error("Please verify your email to continue", {
+          id: "login",
+        });
+        return;
+      }
+
       toast.error(error.message || "Failed to login", {
         id: "login",
       });
@@ -109,12 +110,12 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
+            <Link
+              href="/auth/forgot-password"
+              className="ml-auto text-sm underline-offset-4 hover:underline italic"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
           <Input id="password" name="password" type="password" />
           {errors.password && (
