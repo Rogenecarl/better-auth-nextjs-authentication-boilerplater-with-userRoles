@@ -83,32 +83,46 @@ export const auth = betterAuth({
           },
         };
       }
+      
+      // Check if user is approved when signing in
+      if (ctx.path === "/sign-in/email") {
+        const email = String(ctx.body.email);
+        
+        // Find the user by email
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { isApproved: true },
+        });
+        
+        // If user exists and is not approved, throw an error
+        if (user && !user.isApproved) {
+          throw new APIError("UNAUTHORIZED", {
+            message: "Your account is pending approval by an administrator.",
+            code: "ACCOUNT_PENDING_APPROVAL",
+          });
+        }
+      }
     }),
-  },
-  //social providers roles
-  databaseHooks: {
-    user: {
-      create: {
-        before: async (user) => {
-          return {
-            data: {
-              ...user,
-              role: "USER",
-            },
-          };
-        },
-      },
-    },
   },
   user: {
     additionalFields: {
       role: {
         type: ["USER", "HEALTH_PROVIDER", "ADMIN"],
       },
+      isApproved: {
+        type: "boolean",
+      },
+      licenseNumber: {
+        type: "string",
+      },
     },
   },
   session: {
     expiresIn: 30 * 24 * 60 * 60, // 30 days
+    cookieCache: {
+      enabled: true,
+      expiresIn: 20 * 60, // 20 minutes
+    },
   },
   account: {
     accountLinking: {
@@ -123,4 +137,4 @@ export const auth = betterAuth({
   plugins: [nextCookies()],
 });
 
-export type ErrorCode = keyof typeof auth.$ERROR_CODES | "UNKNOWN";
+export type ErrorCode = keyof typeof auth.$ERROR_CODES | "UNKNOWN" | "ACCOUNT_PENDING_APPROVAL";

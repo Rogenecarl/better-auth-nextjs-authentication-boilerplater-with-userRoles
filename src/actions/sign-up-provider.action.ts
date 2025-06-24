@@ -1,17 +1,18 @@
 "use server";
 
-import { userRegisterSchema } from "@/components/schemas/register-schema";
+import { providerRegisterSchema } from "@/components/schemas/register-schema";
 import { auth, ErrorCode } from "@/lib/auth";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 
-export async function signUpEmailAction(formData: FormData) {
+export async function signUpProviderAction(formData: FormData) {
   const name = String(formData.get("name"));
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
+  const licenseNumber = String(formData.get("licenseNumber"));
 
-  // Validate using the imported register schema
-  const result = userRegisterSchema.safeParse({ name, email, password });
+  // Validate using the imported provider register schema
+  const result = providerRegisterSchema.safeParse({ name, email, password, licenseNumber });
 
   if (!result.success) {
     // Get the first error message
@@ -28,9 +29,9 @@ export async function signUpEmailAction(formData: FormData) {
         name,
         email,
         password,
-        role: "USER",
-        isApproved: false,
-        licenseNumber: "",
+        role: "HEALTH_PROVIDER",
+        isApproved: false, // Health providers need approval
+        licenseNumber,
       },
     });
 
@@ -59,4 +60,4 @@ export async function signUpEmailAction(formData: FormData) {
 
     return { error: "Internal Server Error" };
   }
-}
+} 

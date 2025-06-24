@@ -35,10 +35,12 @@ model User {
   updatedAt DateTime
 
   name          String
-  email         String  @unique
+  email         String   @unique
   emailVerified Boolean
   image         String?
-  role          UserRole
+  role          UserRole @default(USER)
+  isApproved    Boolean  @default(true)
+  licenseNumber String?
 
   sessions Session[]
   accounts Account[]

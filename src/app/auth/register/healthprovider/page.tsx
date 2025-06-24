@@ -1,9 +1,9 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import { ReturnButton } from "@/components/return-button";
-import { RegisterForm } from "@/components/register-form";
+import { RegisterProviderForm } from "@/components/register-provider-form";
 
-export default async function RegisterHealthProviderPage() {
+export default function RegisterHealthProviderPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -19,22 +19,25 @@ export default async function RegisterHealthProviderPage() {
         <div className="flex flex-1 items-center justify-center py-6">
           <div className="w-full max-w-md">
             <div className="mb-8 text-center">
-              <h1 className="text-2xl font-bold mb-2">Healthcare Provider Registration</h1>
+              <h1 className="text-2xl font-bold mb-2">
+                Healthcare Provider Registration
+              </h1>
               <p className="text-muted-foreground text-sm">
                 Register as a certified healthcare professional
               </p>
             </div>
-            
+
             <div className="space-y-6">
               {/* Provider registration form will be implemented here */}
               <div className="border rounded-lg p-6 bg-muted/30">
                 <div className="text-center space-y-4">
                   <h2 className="text-lg font-medium">Provider Registration</h2>
                   <p className="text-sm text-muted-foreground">
-                    The healthcare provider registration form will be implemented here.
-                    It will include additional fields for professional credentials and verification.
+                    The healthcare provider registration form will be
+                    implemented here. It will include additional fields for
+                    professional credentials and verification.
                   </p>
-                  <RegisterForm />
+                  <RegisterProviderForm />
                 </div>
               </div>
             </div>
@@ -50,4 +53,4 @@ export default async function RegisterHealthProviderPage() {
       </div>
     </div>
   );
-} 
+}
