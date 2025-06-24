@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
-import { approveUserAction } from "@/actions/approve-user.action";
+import { approveUserAction } from "@/actions/admin.actions";
 import { CheckCircle } from "lucide-react";
 
 interface ApproveUserButtonProps {
@@ -25,7 +25,7 @@ export function ApproveUserButton({ userId }: ApproveUserButtonProps) {
       }
 
       toast.success("User approved successfully", { id: "approve-user" });
-      
+
       // Refresh the page to show updated status
       window.location.reload();
     } catch (error: any) {
@@ -49,4 +49,4 @@ export function ApproveUserButton({ userId }: ApproveUserButtonProps) {
       <span>Approve</span>
     </Button>
   );
-} 
+}

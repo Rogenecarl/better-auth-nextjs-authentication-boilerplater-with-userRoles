@@ -36,7 +36,7 @@ A modern authentication solution built with Next.js 15, Prisma, and better-auth.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/betterauth.git
+git clone https://github.com/Rogenecarl/better-auth-nextjs-authentication-boilerplater-with-userRoles.git
 cd betterauth
 ```
 
@@ -72,6 +72,9 @@ DIRECT_URL=postgresql://username:password@host:port/database
 
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+
+NODEMAILER_USER=
+NODEMAILER_APP_PASSWORD=
 ```
 
 ### 4. Initialize the database
