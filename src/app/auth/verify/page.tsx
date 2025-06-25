@@ -12,7 +12,7 @@ interface PageProps {
 export default async function Page({ searchParams }: PageProps) {
   const error = (await searchParams).error;
 
-  if (!error) redirect("/api/auth/redirect");
+  if (!error) redirect("/auth/login");
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

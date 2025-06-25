@@ -12,7 +12,11 @@ export default async function Page() {
   if (!session) redirect("/auth/login");
 
   if (session.user.role !== "ADMIN") {
-    redirect("/auth/login");
+    if (session.user.role === "HEALTH_PROVIDER") {
+      redirect("/healthproviders/dashboard");
+    } else {
+      redirect("/profile");
+    }
   }
 
   return (

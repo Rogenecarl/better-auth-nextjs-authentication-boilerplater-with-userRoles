@@ -10,7 +10,11 @@ export default async function userDashboardPage() {
   if (!session) redirect("/auth/login");
 
   if (session.user.role !== "USER") {
-    redirect("/api/auth/redirect");
+    if (session.user.role === "ADMIN") {
+      redirect("/admin/dashboard");
+    } else {
+      redirect("/healthproviders/dashboard");
+    }
   }
 
   return <div>User Dashboard</div>;

@@ -12,7 +12,11 @@ export default async function HealthProvidersDashboard() {
   if (!session) redirect("/auth/login");
 
   if (session.user.role !== "HEALTH_PROVIDER") {
-    redirect("/api/auth/redirect");
+    if (session.user.role === "ADMIN") {
+      redirect("/admin/dashboard");
+    } else {
+      redirect("/profile");
+    }
   }
 
   return (
