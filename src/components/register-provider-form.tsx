@@ -24,12 +24,17 @@ export function RegisterProviderForm({
   className,
   ...props
 }: RegisterFormProps) {
-  const { errors, handleSubmit, setErrors } = useZodForm(providerRegisterSchema);
+  const { errors, handleSubmit, setErrors } = useZodForm(
+    providerRegisterSchema
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const onFormSubmit = async (data: ProviderRegisterSchemaType, formData: FormData) => {
+  const onFormSubmit = async (
+    data: ProviderRegisterSchemaType,
+    formData: FormData
+  ) => {
     setSubmitError(null);
     setIsLoading(true);
 
@@ -44,9 +49,12 @@ export function RegisterProviderForm({
         throw new Error(response.error);
       }
 
-      toast.success("Registration complete. Please wait for admin approval before logging in.", {
-        id: "register",
-      });
+      toast.success(
+        "Registration complete. Please wait for admin approval before logging in.",
+        {
+          id: "register",
+        }
+      );
       router.push("/auth/register/success");
     } catch (error: any) {
       toast.error(error.message || "Failed to register", {

@@ -8,9 +8,6 @@ import { prisma } from "@/lib/prisma";
 import { ErrorCode } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-// Helper function to add delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export async function signInEmailAction(formData: FormData) {
   const headersList = await headers();
 
@@ -37,9 +34,6 @@ export async function signInEmailAction(formData: FormData) {
         password,
       },
     });
-
-    // Add a small delay
-    await delay(200);
 
     // Try to get session first
     const session = await auth.api.getSession({
@@ -73,7 +67,9 @@ export async function signInEmailAction(formData: FormData) {
         case "EMAIL_NOT_VERIFIED":
           redirect("/auth/verify?error=email_not_verified");
         case "ACCOUNT_PENDING_APPROVAL":
-          return { error: "Your account is pending approval by an administrator." };
+          return {
+            error: "Your account is pending approval by an administrator.",
+          };
         default:
           return { error: err.message };
       }
