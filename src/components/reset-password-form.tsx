@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { resetPassword } from "@/lib/auth-client";
+import { resetPasswordAction } from "@/actions/reset-passowrd.action";
 
 interface ResetPasswordFormProps {
   token: string;
@@ -19,38 +19,41 @@ export const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
   async function handleSubmit(evt: React.FormEvent<HTMLFormElement>) {
     evt.preventDefault();
     const formData = new FormData(evt.target as HTMLFormElement);
+    setIsPending(true);
+    
+    try {
+      toast.loading("Resetting password...", {
+        id: "reset-password",
+      });
 
-    const password = String(formData.get("password"));
-    const confirmPassword = String(formData.get("confirmPassword"));
+      const response = await resetPasswordAction(formData, token);
 
-    if (!password) return toast.error("Password is required");
-    if (password !== confirmPassword)
-      return toast.error("Passwords do not match");
+      if (response?.error) {
+        throw new Error(response.error);
+      }
 
-    await resetPassword({
-      newPassword: password,
-      token,
-      fetchOptions: {
-        onRequest: () => {
-          setIsPending(true);
-        },
-        onResponse: (response) => {
-          setIsPending(false);
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message);
-        },
-        onSuccess: () => {
-          toast.success("Password reset successfully!");
-          router.push("/auth/login");
-        },
-      },
-    });
+      toast.success("Password reset successfully!", {
+        id: "reset-password",
+      });
+      
+      // Redirect to login page after successful reset
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 1500);
+      
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reset password";
+      toast.error(errorMessage, {
+        id: "reset-password",
+      });
+      setIsPending(false);
+    }
   }
+  
   return (
     <form onSubmit={handleSubmit} className="max-w-sm w-full space-y-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">password</Label>
+        <Label htmlFor="password">Password</Label>
         <Input type="password" id="password" name="password" />
       </div>
       <div className="flex flex-col gap-2">
@@ -58,7 +61,7 @@ export const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
         <Input type="password" id="confirmPassword" name="confirmPassword" />
       </div>
       <Button type="submit" disabled={isPending}>
-        Reset password
+        {isPending ? "Resetting..." : "Reset password"}
       </Button>
     </form>
   );

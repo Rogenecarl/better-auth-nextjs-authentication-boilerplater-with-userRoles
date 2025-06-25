@@ -28,8 +28,8 @@ export function ApproveUserButton({ userId }: ApproveUserButtonProps) {
 
       // Refresh the page to show updated status
       window.location.reload();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to approve user", {
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to approve user", {
         id: "approve-user",
       });
     } finally {

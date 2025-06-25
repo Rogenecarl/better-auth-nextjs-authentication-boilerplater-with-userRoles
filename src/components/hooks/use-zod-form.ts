@@ -36,7 +36,7 @@ export function useZodForm<T extends z.ZodType>(schema: T) {
       
       // Extract form values
       const formValues: Record<string, string> = {};
-      const schemaObject = schema as unknown as z.ZodObject<any>;
+      const schemaObject = schema as unknown as z.ZodObject<z.ZodRawShape>;
       
       if (schemaObject._def && schemaObject._def.shape) {
         const shape = schemaObject._def.shape();

@@ -21,7 +21,7 @@ interface LoginFormProps extends React.ComponentProps<"form"> {
 }
 
 export function LoginForm({ className, ...props }: LoginFormProps) {
-  const { errors, handleSubmit, setErrors } = useZodForm(loginSchema);
+  const { errors, handleSubmit } = useZodForm(loginSchema);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -60,18 +60,19 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           router.push("/profile");
           break;
       }
-    } catch (error: any) {
-      if (error.message === "NEXT_REDIRECT") {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === "NEXT_REDIRECT") {
         toast.error("Please verify your email to continue", {
           id: "login",
         });
         return;
       }
 
-      toast.error(error.message || "Failed to login", {
+      const errorMessage = error instanceof Error ? error.message : "Failed to login";
+      toast.error(errorMessage, {
         id: "login",
       });
-      setSubmitError(error.message || "Failed to login");
+      setSubmitError(errorMessage);
     } finally {
       setIsLoading(false);
     }

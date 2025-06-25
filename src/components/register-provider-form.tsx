@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { toast } from "sonner";
 
 import { signUpProviderAction } from "@/actions/sign-up-provider.action";
@@ -24,7 +23,7 @@ export function RegisterProviderForm({
   className,
   ...props
 }: RegisterFormProps) {
-  const { errors, handleSubmit, setErrors } = useZodForm(
+  const { errors, handleSubmit } = useZodForm(
     providerRegisterSchema
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -56,11 +55,12 @@ export function RegisterProviderForm({
         }
       );
       router.push("/auth/register/success");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to register", {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to register";
+      toast.error(errorMessage, {
         id: "register",
       });
-      setSubmitError(error.message || "Failed to register");
+      setSubmitError(errorMessage);
     } finally {
       setIsLoading(false);
     }

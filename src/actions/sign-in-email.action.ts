@@ -27,7 +27,7 @@ export async function signInEmailAction(formData: FormData) {
 
   try {
     // Authenticate the user
-    const authResponse = await auth.api.signInEmail({
+    await auth.api.signInEmail({
       headers: headersList,
       body: {
         email,

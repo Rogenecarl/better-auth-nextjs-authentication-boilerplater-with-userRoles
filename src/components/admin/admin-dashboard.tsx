@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ReturnButton } from "@/components/return-button";
 import SignOutButton from "@/components/sign-out-button";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Trash2, Loader2 } from "lucide-react";
+import { CheckCircle, Trash2 } from "lucide-react";
 import {
   fetchUsersAction,
   approveUserAction,
@@ -39,7 +39,7 @@ export function AdminDashboard() {
           setUsers(result.data);
           setCurrentUserId(result.currentUserId || "");
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to load users");
       }
     };
@@ -69,8 +69,8 @@ export function AdminDashboard() {
 
       // Refresh server data
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to approve user", {
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to approve user", {
         id: `approve-${userId}`,
       });
     } finally {
@@ -96,8 +96,8 @@ export function AdminDashboard() {
 
       // Refresh server data
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete user", {
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete user", {
         id: `delete-${userId}`,
       });
     } finally {

@@ -1,7 +1,4 @@
-import { GalleryVerticalEnd } from "lucide-react";
-import Link from "next/link";
 import { RegisterRoles } from "@/components/register-roles";
-import { ReturnButton } from "@/components/return-button";
 
 export default function RegisterRolesPage() {
   return (

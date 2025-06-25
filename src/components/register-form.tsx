@@ -20,7 +20,7 @@ interface RegisterFormProps extends React.ComponentProps<"form"> {
 }
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
-  const { errors, handleSubmit, setErrors } = useZodForm(userRegisterSchema);
+  const { errors, handleSubmit } = useZodForm(userRegisterSchema);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -44,11 +44,12 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
         id: "register",
       });
       router.push("/auth/register/success");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to register", {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to register";
+      toast.error(errorMessage, {
         id: "register",
       });
-      setSubmitError(error.message || "Failed to register");
+      setSubmitError(errorMessage);
     } finally {
       setIsLoading(false);
     }

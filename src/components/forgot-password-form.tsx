@@ -26,7 +26,7 @@ export const ForgotPasswordForm = () => {
         onRequest: () => {
           setIsPending(true);
         },
-        onResponse: (response) => {
+        onResponse: () => {
           setIsPending(false);
         },
         onError: (ctx) => {
