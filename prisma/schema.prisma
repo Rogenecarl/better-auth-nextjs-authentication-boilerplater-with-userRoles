@@ -9,91 +9,420 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ================================
+// AUTHENTICATION & USER MODELS
+// ================================
+
 enum UserRole {
   ADMIN
-  USER
   HEALTH_PROVIDER
+  USER
 }
 
-model Post {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title   String
-  content String
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("posts")
+// BEST PRACTICE: Refined UserStatus to handle both email verification and admin approval scenarios.
+enum UserStatus {
+  ACTIVE // User is fully active and can use the platform.
+  INACTIVE // User has been deactivated.
+  SUSPENDED // User has been suspended by an admin.
+  PENDING_VERIFICATION // A new user who needs to verify their email. (Default for normal users)
+  PENDING_APPROVAL // A new provider who is waiting for admin approval.
 }
 
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime
-  updatedAt DateTime
+  id            String  @id @default(cuid())
+  email         String  @unique
+  emailVerified Boolean @default(false)
 
-  name          String
-  email         String   @unique
-  emailVerified Boolean
-  image         String?
-  role          UserRole @default(USER)
-  isApproved    Boolean  @default(true)
-  licenseNumber String?
+  // BEST PRACTICE: Made 'name' non-optional as both registration flows require it.
+  name  String
+  image String? // Kept optional for profile customization later.
 
-  sessions Session[]
-  accounts Account[]
-  posts    Post[]
+  // Core application-specific fields
+  // BEST PRACTICE: Default status handles the normal user flow. The provider flow will override this.
+  status UserStatus @default(ACTIVE)
+  role   UserRole   @default(USER)
+
+  // Optional profile details, can be filled in later
+  address            String?
+  city               String?   @default("Digos City")
+  province           String?   @default("Davao del Sur")
+  zipCode            String?
+  latitude           Float?
+  longitude          Float?
+  timezone           String?   @default("Asia/Manila")
+  emailNotifications Boolean   @default(true)
+  pushNotifications  Boolean   @default(true)
+  lastLogin          DateTime?
+  lastActive         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions       Session[]
+  accounts       Account[]
+  healthProvider HealthProvider?
+  bookings       Booking[]
+  reviews        Review[]
+  favorites      UserFavorite[]
+  notifications  Notification[]
 
   @@map("users")
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  createdAt DateTime
-  updatedAt DateTime
-
-  expiresAt DateTime
+  id        String   @id @default(cuid())
   token     String   @unique
+  expiresAt DateTime
+  userId    String
   ipAddress String?
   userAgent String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
 model Account {
-  id        String   @id @default(uuid())
-  createdAt DateTime
-  updatedAt DateTime
-
-  accountId             String
+  id                    String    @id @default(cuid())
   providerId            String
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
+  accountId             String
+  password              String? // For email/password credentials
+  accessToken           String? // For OAuth
+  refreshToken          String? // For OAuth
+  idToken               String? // For OAuth
+  scope                 String? // For OAuth
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
+  userId                String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@unique([userId, providerId])
   @@map("accounts")
 }
 
 model Verification {
-  id        String    @id @default(uuid())
-  createdAt DateTime?
-  updatedAt DateTime?
-
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("verifications")
+}
+
+// ================================
+// HEALTH PROVIDER MODELS
+// ================================
+
+enum ProviderType {
+  HOSPITAL
+  HEALTH_CENTER
+  DENTAL_CLINIC
+  VETERINARY
+  DERMATOLOGY
+  GOVERNMENT_HEALTH_CENTER
+}
+
+enum ProviderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  INACTIVE
+}
+
+model HealthProvider {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  providerType  ProviderType
+  status        ProviderStatus @default(PENDING)
+  businessName  String
+  description   String?        @db.Text
+  businessPhone String
+  businessEmail String
+  address       String
+  city          String         @default("Digos City")
+  province      String         @default("Davao del Sur")
+  zipCode       String?
+  latitude      Float
+  longitude     Float
+  landmark      String?
+
+  // BEST PRACTICE: Added a 'documents' field for admin verification process.
+  documents String[]
+
+  // Fields below are likely part of the multi-step form
+  operatingHours     Json
+  is24Hours          Boolean  @default(false)
+  acceptsWalkIn      Boolean  @default(true)
+  acceptsBookings    Boolean  @default(true)
+  acceptedInsurances String[]
+  priceRange         String?
+  images             String[]
+
+  // System-managed fields
+  averageRating   Float     @default(0)
+  totalReviews    Int       @default(0)
+  totalBookings   Int       @default(0)
+  approvedBy      String? // Admin's user ID
+  approvedAt      DateTime?
+  rejectionReason String?
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services          Service[]
+  specialties       ProviderSpecialty[]
+  staff             Staff[]
+  bookings          Booking[]
+  reviews           Review[]
+  favorites         UserFavorite[]
+  operatingSchedule OperatingSchedule[]
+  facilities        Facility[]
+
+  @@map("health_providers")
+}
+
+// ... All other models (Service, Staff, Booking, Review, etc.) remain the same as they correctly support the logic.
+// The structure you have for them is already excellent.
+
+// NOTE: The rest of your schema from Service downwards is well-structured and doesn't need changes to support this logic.
+// For brevity, I am omitting the unchanged models. You can append them directly.
+
+model Service {
+  id              String         @id @default(cuid())
+  providerId      String
+  name            String
+  description     String?        @db.Text
+  category        String
+  subCategory     String?
+  duration        Int?
+  price           Float?
+  priceRange      String?
+  isActive        Boolean        @default(true)
+  requiresBooking Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  provider        HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+
+  @@map("services")
+}
+
+model Specialty {
+  id          String              @id @default(cuid())
+  name        String              @unique
+  description String?             @db.Text
+  category    String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  providers   ProviderSpecialty[]
+
+  @@map("specialties")
+}
+
+model ProviderSpecialty {
+  id          String         @id @default(cuid())
+  providerId  String
+  specialtyId String
+  isVerified  Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  provider    HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  specialty   Specialty      @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, specialtyId])
+  @@map("provider_specialties")
+}
+
+model Staff {
+  id          String         @id @default(cuid())
+  providerId  String
+  name        String
+  position    String
+  specialties String[]
+  phone       String?
+  email       String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  provider    HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+
+  @@map("staff")
+}
+
+model OperatingSchedule {
+  id         String         @id @default(cuid())
+  providerId String
+  dayOfWeek  Int
+  openTime   String
+  closeTime  String
+  isOpen     Boolean        @default(true)
+  breaks     Json?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  provider   HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, dayOfWeek])
+  @@map("operating_schedules")
+}
+
+model Facility {
+  id          String         @id @default(cuid())
+  providerId  String
+  name        String
+  description String?        @db.Text
+  category    String
+  isAvailable Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  provider    HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("facilities")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+model Booking {
+  id                 String         @id @default(cuid())
+  userId             String
+  providerId         String
+  serviceId          String?
+  staffId            String?
+  bookingDate        DateTime
+  duration           Int            @default(30)
+  status             BookingStatus  @default(PENDING)
+  patientName        String
+  patientPhone       String
+  patientEmail       String?
+  patientAge         Int?
+  patientGender      String?
+  notes              String?        @db.Text
+  bookingReference   String         @unique @default(cuid())
+  cancelledBy        String?
+  cancellationReason String?        @db.Text
+  rescheduledFrom    String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  user               User           @relation(fields: [userId], references: [id])
+  provider           HealthProvider @relation(fields: [providerId], references: [id])
+  service            Service?       @relation(fields: [serviceId], references: [id])
+  staff              Staff?         @relation(fields: [staffId], references: [id])
+  notifications      Notification[]
+
+  @@map("bookings")
+}
+
+model Review {
+  id                String         @id @default(cuid())
+  userId            String
+  providerId        String
+  rating            Float
+  title             String?
+  comment           String?        @db.Text
+  isVerified        Boolean        @default(false)
+  isVisible         Boolean        @default(true)
+  serviceQuality    Float?
+  cleanliness       Float?
+  staffFriendliness Float?
+  waitTime          Float?
+  valueForMoney     Float?
+  providerResponse  String?        @db.Text
+  respondedAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  user              User           @relation(fields: [userId], references: [id])
+  provider          HealthProvider @relation(fields: [providerId], references: [id])
+
+  @@unique([userId, providerId])
+  @@map("reviews")
+}
+
+model UserFavorite {
+  id         String         @id @default(cuid())
+  userId     String
+  providerId String
+  createdAt  DateTime       @default(now())
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   HealthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@map("user_favorites")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  content   String    @db.Text
+  type      String
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  actionUrl String?
+  bookingId String?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking   Booking?  @relation(fields: [bookingId], references: [id])
+
+  @@map("notifications")
+}
+
+model GovernmentHealthProgram {
+  id                 String    @id @default(cuid())
+  name               String
+  description        String    @db.Text
+  eligibility        String    @db.Text
+  benefits           String    @db.Text
+  requirements       String[]
+  contactInfo        Json
+  applicationProcess String    @db.Text
+  isActive           Boolean   @default(true)
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@map("government_health_programs")
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  category  String
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  table     String
+  recordId  String
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
 }

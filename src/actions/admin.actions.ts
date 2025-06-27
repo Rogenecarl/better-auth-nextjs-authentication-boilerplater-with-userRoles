@@ -11,9 +11,8 @@ export type UserData = {
   name: string;
   email: string;
   role: string;
-  licenseNumber: string | null;
-  isApproved: boolean;
   createdAt: Date;
+  status: string;
 };
 
 // Fetch all users (admin only)
@@ -29,7 +28,10 @@ export async function fetchUsersAction() {
     }
 
     if (session.user.role !== "ADMIN") {
-      return { error: "Unauthorized. Only admins can access this data.", data: null };
+      return {
+        error: "Unauthorized. Only admins can access this data.",
+        data: null,
+      };
     }
 
     // Fetch all users
@@ -42,16 +44,14 @@ export async function fetchUsersAction() {
         name: true,
         email: true,
         role: true,
-        licenseNumber: true,
-        isApproved: true,
         createdAt: true,
       },
     });
 
-    return { 
+    return {
       data: users as UserData[],
       currentUserId: session.user.id,
-      error: null 
+      error: null,
     };
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -78,7 +78,7 @@ export async function approveUserAction(userId: string) {
     // Update the user's approval status
     await prisma.user.update({
       where: { id: userId },
-      data: { isApproved: true },
+      data: { status: "ACTIVE" },
     });
 
     // Revalidate the admin dashboard page
@@ -138,4 +138,4 @@ export async function deleteUserAction(userId: string) {
     console.error("Error deleting user:", error);
     return { error: "Failed to delete user" };
   }
-} 
+}

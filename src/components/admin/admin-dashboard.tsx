@@ -119,11 +119,9 @@ export function AdminDashboard() {
         <table className="table table-auto min-w-full whitespace-nowrap">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>License</th>
               <th>Status</th>
               <th>Created At</th>
               <th>Actions</th>
@@ -142,29 +140,26 @@ export function AdminDashboard() {
             ) : (
               users.map((user) => (
                 <tr key={user.id} className="border-b text-sm text-center">
-                  <td className="text-center px-4 py-2">{user.id}</td>
                   <td className="text-center px-4 py-2">{user.name}</td>
                   <td className="text-center px-4 py-2">{user.email}</td>
                   <td className="text-center px-4 py-2">{user.role}</td>
-                  <td className="text-center px-4 py-2">
-                    {user.licenseNumber || "-"}
-                  </td>
+                  <td className="text-center px-4 py-2">{user.status}</td>
                   <td className="text-center px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
-                        user.isApproved
+                        user.status === "ACTIVE"
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {user.isApproved ? "Approved" : "Pending"}
+                      {user.status === "ACTIVE" ? "Approved" : "Pending"}
                     </span>
                   </td>
                   <td className="text-center px-4 py-2">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2 text-center flex items-center justify-center gap-2">
-                    {user.role === "HEALTH_PROVIDER" && !user.isApproved && (
+                      {user.role === "HEALTH_PROVIDER" && user.status !== "ACTIVE" && (
                       <Button
                         onClick={() => handleApproveUser(user.id)}
                         disabled={isLoading[user.id]}

@@ -104,18 +104,6 @@ export function RegisterProviderForm({
         </div>
 
         <div className="grid gap-3">
-          <Label htmlFor="licenseNumber">License Number</Label>
-          <Input
-            id="licenseNumber"
-            name="licenseNumber"
-            placeholder="Medical License Number"
-          />
-          {errors.licenseNumber && (
-            <p className="text-sm text-red-500">{errors.licenseNumber}</p>
-          )}
-        </div>
-
-        <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
           <Input id="password" type="password" name="password" />
           {errors.password && (

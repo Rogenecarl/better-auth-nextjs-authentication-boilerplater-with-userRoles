@@ -29,8 +29,7 @@ export async function signUpEmailAction(formData: FormData) {
         email,
         password,
         role: "USER",
-        isApproved: true,
-        licenseNumber: "",
+        status: "ACTIVE",
       },
     });
 

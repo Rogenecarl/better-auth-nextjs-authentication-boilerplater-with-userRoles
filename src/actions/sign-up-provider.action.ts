@@ -30,8 +30,7 @@ export async function signUpProviderAction(formData: FormData) {
         email,
         password,
         role: "HEALTH_PROVIDER",
-        isApproved: false, // Health providers need approval
-        licenseNumber,
+        status: "PENDING_APPROVAL",
       },
     });
 
