@@ -6,11 +6,13 @@ const isServer = typeof window === "undefined";
 // Modified to accept both File objects and strings (for static URLs)
 const fileSchema = z
   .union([
-    z.any().refine(
-      (file) => (isServer ? file instanceof File : true),
-      "Invalid file format."
-    ),
-    z.string().min(1, "File URL is required")
+    z
+      .any()
+      .refine(
+        (file) => (isServer ? file instanceof File : true),
+        "Invalid file format."
+      ),
+    z.string().min(1, "File URL is required"),
   ])
   .optional()
   .nullable();

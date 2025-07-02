@@ -58,7 +58,7 @@ const timeSlots = [
 
 export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
   const watchServices = form.watch("services") || []
-  
+
   const addService = () => {
     const currentServices = form.getValues("services") || []
     form.setValue("services", [
@@ -74,7 +74,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
       currentServices.filter((_, i) => i !== index)
     )
   }
-  
+
   return (
     <div className="space-y-8">
       <div>
@@ -98,8 +98,8 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
               List all medical services that you offer to patients. Be specific about what you provide.
             </p>
           </div>
-          
-          <div className="space-y-4">
+
+              <div className="space-y-4">
             {watchServices.map((_, index) => (
               <Card key={index} className="relative p-5 border border-gray-200 rounded-lg shadow-sm">
                 {index > 0 && (
@@ -111,9 +111,9 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                     className="absolute top-2 right-2 h-8 w-8 text-gray-400 hover:text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-                
+                    </Button>
+                  )}
+
                 <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
@@ -156,33 +156,33 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                       </FormItem>
                     )}
                   />
-                  
-                  <FormField
-                    control={form.control}
+
+                <FormField
+                  control={form.control}
                     name={`services.${index}.priceRange`}
-                    render={({ field }) => (
-                      <FormItem>
+                  render={({ field }) => (
+                    <FormItem>
                         <FormLabel className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-gray-500" />
                           <span>Price Range</span>
                         </FormLabel>
-                        <FormControl>
+                      <FormControl>
                           <Input 
                             placeholder="e.g. $50-100, $75 per hour" 
                             {...field} 
                             className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           />
-                        </FormControl>
+                      </FormControl>
                         <FormDescription className="text-xs text-gray-500">
                           Optional - Provide an estimate or range of prices
                         </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </Card>
-            ))}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </Card>
+          ))}
             
             <Button
               type="button"
@@ -195,7 +195,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
             </Button>
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 shadow-sm">
             <h3 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
@@ -206,7 +206,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
               Set your regular business hours. This helps patients know when they can visit your facility.
             </p>
           </div>
-          
+
           <FormField
             control={form.control}
             name="operatingDays"
@@ -222,10 +222,10 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                       key={day}
                       className="flex items-center space-x-3 space-y-0"
                     >
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value?.includes(day)}
-                          onCheckedChange={(checked) => {
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(day)}
+                                onCheckedChange={(checked) => {
                             const currentValue = field.value || []
                             if (checked) {
                               field.onChange([...currentValue, day])
@@ -234,20 +234,20 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                                 currentValue.filter((value) => value !== day)
                               )
                             }
-                          }}
-                        />
-                      </FormControl>
+                                }}
+                              />
+                            </FormControl>
                       <FormLabel className="text-sm font-normal cursor-pointer">
                         {day}
                       </FormLabel>
-                    </FormItem>
+                          </FormItem>
                   ))}
                 </div>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -258,7 +258,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                     <Clock className="h-4 w-4 text-gray-500" />
                     <span>Opening Time</span>
                   </FormLabel>
-                  <FormControl>
+                    <FormControl>
                     <select
                       {...field}
                       className="w-full h-11 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
@@ -285,7 +285,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                     <Clock className="h-4 w-4 text-gray-500" />
                     <span>Closing Time</span>
                   </FormLabel>
-                  <FormControl>
+                    <FormControl>
                     <select
                       {...field}
                       className="w-full h-11 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"

@@ -1,77 +1,88 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { UseFormReturn } from "react-hook-form"
-import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema"
+import { useState } from "react";
+import type { UseFormReturn } from "react-hook-form";
+import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema";
 
 export interface Step {
-  id: number
-  title: string
-  description: string
+  id: number;
+  title: string;
+  description: string;
 }
 
-export function useMultiStepForm(form: UseFormReturn<CompleteRegistrationFormData>) {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [completedSteps, setCompletedSteps] = useState<number[]>([])
+export function useMultiStepForm(
+  form: UseFormReturn<CompleteRegistrationFormData>
+) {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
   const steps: Step[] = [
     {
       id: 1,
       title: "Personal Information",
-      description: "Basic details and identity verification"
+      description: "Basic details and identity verification",
     },
     {
       id: 2,
       title: "Business Information",
-      description: "Details about your healthcare business"
+      description: "Details about your healthcare business",
     },
     {
       id: 3,
       title: "Services Offered",
-      description: "Healthcare services and operating hours"
+      description: "Healthcare services and operating hours",
     },
     {
       id: 4,
       title: "Business Documents",
-      description: "Required permits and business images"
+      description: "Required permits and business images",
     },
     {
       id: 5,
       title: "Account Setup",
-      description: "Create secure login credentials"
+      description: "Create secure login credentials",
     },
-  ]
+  ];
 
   const nextStep = async () => {
-    const isValid = await validateCurrentStep()
+    const isValid = await validateCurrentStep();
     if (isValid && currentStep < steps.length) {
-      setCompletedSteps((prev) => [...prev, currentStep])
-      setCurrentStep((prev) => prev + 1)
+      setCompletedSteps((prev) => [...prev, currentStep]);
+      setCurrentStep((prev) => prev + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1)
+      setCurrentStep((prev) => prev - 1);
     }
-  }
+  };
 
   const goToStep = (step: number) => {
     if (step >= 1 && step <= steps.length && canGoToStep(step)) {
-      setCurrentStep(step)
+      setCurrentStep(step);
     }
-  }
+  };
 
   const validateCurrentStep = async (): Promise<boolean> => {
-    const fieldsToValidate = getFieldsForStep(currentStep)
-    const result = await form.trigger(fieldsToValidate)
-    return result
-  }
+    const fieldsToValidate = getFieldsForStep(currentStep);
+    const result = await form.trigger(fieldsToValidate);
+    return result;
+  };
 
-  const getFieldsForStep = (step: number): (keyof CompleteRegistrationFormData)[] => {
+  const getFieldsForStep = (
+    step: number
+  ): (keyof CompleteRegistrationFormData)[] => {
     switch (step) {
       case 1:
-        return ["email", "firstName", "lastName", "phone", "validIdType", "idImage"]
+        return [
+          "email",
+          "firstName",
+          "lastName",
+          "phone",
+          "validIdType",
+          "idImage",
+        ];
       case 2:
         return [
           "providerType",
@@ -82,96 +93,103 @@ export function useMultiStepForm(form: UseFormReturn<CompleteRegistrationFormDat
           "businessCity",
           "businessProvince",
           "businessZipCode",
-        ]
+        ];
       case 3:
-        return ["services", "operatingDays", "openTime", "closeTime"]
+        return ["services", "operatingDays", "openTime", "closeTime"];
       case 4:
-        return ["permitNumber", "licenseNumber", "permitImageUrl"]
+        return ["permitNumber", "licenseNumber", "permitImageUrl"];
       case 5:
-        return ["password", "confirmPassword"]
+        return ["password", "confirmPassword"];
       default:
-        return []
+        return [];
     }
-  }
+  };
 
   const isStepComplete = (stepId: number): boolean => {
-    const formData = form.getValues()
-    
+    const formData = form.getValues();
+
     // Logic for each step's completion
     switch (stepId) {
       case 1: {
-        const { firstName, lastName, email, phone, validIdType, idImage } = formData
-        return Boolean(firstName && lastName && email && phone && validIdType && idImage)
-      }
-      
-      case 2: {
-        const { 
-          providerType, 
-          businessName, 
-          businessPhone, 
-          businessEmail, 
-          businessAddress, 
-          businessCity, 
-          businessProvince, 
-          businessZipCode 
-        } = formData
-        
+        const { firstName, lastName, email, phone, validIdType, idImage } =
+          formData;
         return Boolean(
-          providerType && 
-          businessName && 
-          businessPhone && 
-          businessEmail && 
-          businessAddress && 
-          businessCity && 
-          businessProvince && 
-          businessZipCode
-        )
+          firstName && lastName && email && phone && validIdType && idImage
+        );
       }
-      
+
+      case 2: {
+        const {
+          providerType,
+          businessName,
+          businessPhone,
+          businessEmail,
+          businessAddress,
+          businessCity,
+          businessProvince,
+          businessZipCode,
+        } = formData;
+
+        return Boolean(
+          providerType &&
+            businessName &&
+            businessPhone &&
+            businessEmail &&
+            businessAddress &&
+            businessCity &&
+            businessProvince &&
+            businessZipCode
+        );
+      }
+
       case 3: {
-        const { services, operatingDays, openTime, closeTime } = formData
-        const hasServices = services?.length > 0 && 
-          services.some(s => Boolean(s.serviceName && s.description))
-        const hasSchedule = operatingDays?.length > 0 && Boolean(openTime && closeTime)
-        
-        return Boolean(hasServices && hasSchedule)
+        const { services, operatingDays, openTime, closeTime } = formData;
+        const hasServices =
+          services?.length > 0 &&
+          services.some((s) => Boolean(s.serviceName && s.description));
+        const hasSchedule =
+          operatingDays?.length > 0 && Boolean(openTime && closeTime);
+
+        return Boolean(hasServices && hasSchedule);
       }
-      
+
       case 4: {
-        const { permitNumber, permitImageUrl } = formData
-        return Boolean(permitNumber && permitImageUrl)
+        const { permitNumber, permitImageUrl } = formData;
+        return Boolean(permitNumber && permitImageUrl);
       }
-      
+
       case 5: {
-        const { password, confirmPassword } = formData
-        return Boolean(password && confirmPassword && password === confirmPassword)
+        const { password, confirmPassword } = formData;
+        return Boolean(
+          password && confirmPassword && password === confirmPassword
+        );
       }
-      
+
       default:
-        return false
+        return false;
     }
-  }
+  };
 
   const canGoToStep = (stepId: number): boolean => {
     // Can always go to the first step
-    if (stepId === 1) return true
-    
+    if (stepId === 1) return true;
+
     // Can go to any step that comes before the current step
-    if (stepId < currentStep) return true
-    
+    if (stepId < currentStep) return true;
+
     // Can go to the next step only if the current step is complete
-    if (stepId === currentStep + 1) return isStepComplete(currentStep)
-    
+    if (stepId === currentStep + 1) return isStepComplete(currentStep);
+
     // For steps more than one ahead, all previous steps must be complete
     if (stepId > currentStep + 1) {
       for (let i = 1; i < stepId; i++) {
-        if (!isStepComplete(i)) return false
+        if (!isStepComplete(i)) return false;
       }
-      return true
+      return true;
     }
-    
-    return false
-  }
+
+    return false;
+  };
 
   return {
     currentStep,
@@ -183,5 +201,5 @@ export function useMultiStepForm(form: UseFormReturn<CompleteRegistrationFormDat
     canGoToStep,
     validateCurrentStep,
     getFieldsForStep,
-  }
+  };
 }

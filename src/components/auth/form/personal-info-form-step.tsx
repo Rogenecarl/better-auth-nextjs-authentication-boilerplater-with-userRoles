@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
+import {
   User, 
   Phone, 
   Mail, 
@@ -72,95 +72,95 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <User className="h-4 w-4 text-gray-500" />
                     <span>First Name</span>
                   </FormLabel>
-                  <FormControl>
+                <FormControl>
                     <Input 
                       placeholder="Enter your first name" 
                       {...field} 
                       className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                     />
-                  </FormControl>
+                </FormControl>
                   <FormMessage className="text-red-500" />
-                </FormItem>
-              )}
-            />
+              </FormItem>
+            )}
+          />
             
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <User className="h-4 w-4 text-gray-500" />
                     <span>Last Name</span>
                   </FormLabel>
-                  <FormControl>
+                <FormControl>
                     <Input 
                       placeholder="Enter your last name" 
                       {...field} 
                       className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                     />
-                  </FormControl>
+                </FormControl>
                   <FormMessage className="text-red-500" />
-                </FormItem>
-              )}
-            />
-          </div>
+              </FormItem>
+            )}
+          />
+        </div>
 
-          <FormField
-            control={form.control}
+        <FormField
+          control={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
+          render={({ field }) => (
+            <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-gray-500" />
                   <span>Email Address</span>
                 </FormLabel>
-                <FormControl>
+              <FormControl>
                   <Input 
                     placeholder="Enter your email address" 
                     {...field}
                     type="email"
                     className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                   />
-                </FormControl>
+              </FormControl>
                 <FormDescription className="text-xs text-gray-500 mt-1">
                   This email will be used for login and account verification
                 </FormDescription>
                 <FormMessage className="text-red-500" />
-              </FormItem>
-            )}
-          />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
+        <FormField
+          control={form.control}
             name="phone"
-            render={({ field }) => (
-              <FormItem>
+          render={({ field }) => (
+            <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-gray-500" />
                   <span>Phone Number</span>
                 </FormLabel>
-                <FormControl>
+              <FormControl>
                   <Input 
                     placeholder="Enter your phone number" 
                     {...field} 
                     type="tel"
                     className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                   />
-                </FormControl>
+              </FormControl>
                 <FormMessage className="text-red-500" />
-              </FormItem>
-            )}
-          />
+            </FormItem>
+          )}
+        />
         </div>
         
         <div className="space-y-6">
@@ -175,79 +175,79 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </div>
           
           <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="validIdType"
-              render={({ field }) => (
-                <FormItem>
+          <FormField
+            control={form.control}
+            name="validIdType"
+            render={({ field }) => (
+              <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-gray-500" />
                     <span>Valid ID Type</span>
                   </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
                       <SelectTrigger className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all">
-                        <SelectValue placeholder="Select ID type" />
-                      </SelectTrigger>
-                    </FormControl>
+                      <SelectValue placeholder="Select ID type" />
+                    </SelectTrigger>
+                  </FormControl>
                     <SelectContent className="rounded-md shadow-md">
-                      {validIdTypes.map((idType) => (
-                        <SelectItem key={idType} value={idType}>
-                          {idType}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {validIdTypes.map((idType) => (
+                      <SelectItem key={idType} value={idType}>
+                        {idType}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                   <FormDescription className="text-xs text-gray-500 mt-1">
                     Choose the type of government ID you will provide
                   </FormDescription>
                   <FormMessage className="text-red-500" />
-                </FormItem>
-              )}
-            />
+              </FormItem>
+            )}
+          />
             
-            <FormField
-              control={form.control}
-              name="idImage"
-              render={({ field: { onChange, onBlur, name, ref } }) => (
-                <FormItem>
+          <FormField
+            control={form.control}
+            name="idImage"
+            render={({ field: { onChange, onBlur, name, ref } }) => (
+              <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <FileImage className="h-4 w-4 text-gray-500" />
                     <span>Upload ID Image</span>
                   </FormLabel>
-                  <FormControl>
-                    <div className="flex flex-col gap-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        name={name}
-                        ref={ref}
-                        onBlur={onBlur}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          onChange(file);
-                          setFileSelected(!!file);
-                        }}
+                <FormControl>
+                  <div className="flex flex-col gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      name={name}
+                      ref={ref}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        onChange(file);
+                        setFileSelected(!!file);
+                      }}
                         className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {fileSelected && (
+                    />
+                    {fileSelected && (
                         <div className="flex items-center text-xs text-green-600 font-medium mt-1">
                           <Check className="h-4 w-4 mr-1" />
                           <span>File selected successfully</span>
                         </div>
-                      )}
-                    </div>
-                  </FormControl>
+                    )}
+                  </div>
+                </FormControl>
                   <FormDescription className="text-xs text-gray-500 mt-1">
                     Upload a clear image of your government-issued ID
-                  </FormDescription>
+                </FormDescription>
                   <FormMessage className="text-red-500" />
-                </FormItem>
-              )}
-            />
+              </FormItem>
+            )}
+          />
             
             <div className="pt-4">
               <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-2 shadow-sm">

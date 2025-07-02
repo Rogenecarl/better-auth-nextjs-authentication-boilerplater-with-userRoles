@@ -27,6 +27,8 @@ import {
   KeyRound,
   Clock,
   CheckCircle2,
+  Shield,
+  HelpCircle,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -152,25 +154,30 @@ export function MultiStepRegistrationForm() {
 
   // Step icons for sidebar
   const stepIcons = [
-    <User key="user" className="h-5 w-5 text-blue-500" />,
-    <Building key="building" className="h-5 w-5 text-blue-500" />,
-    <ClipboardList key="services" className="h-5 w-5 text-blue-500" />,
-    <FileText key="documents" className="h-5 w-5 text-blue-500" />,
-    <KeyRound key="account" className="h-5 w-5 text-blue-500" />,
+    <User key="user" className="h-5 w-5 text-violet-500" />,
+    <Building key="building" className="h-5 w-5 text-violet-500" />,
+    <ClipboardList key="services" className="h-5 w-5 text-violet-500" />,
+    <FileText key="documents" className="h-5 w-5 text-violet-500" />,
+    <KeyRound key="account" className="h-5 w-5 text-violet-500" />,
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-50 to-blue-50/30">
       {/* Left sidebar - fixed to top and bottom */}
       <div className="w-full md:w-80 md:min-h-screen bg-white shadow-lg flex flex-col md:fixed md:top-0 md:bottom-0 md:left-0 z-10">
-        <div className="px-8 py-10 border-b border-gray-100">
-          <h1 className="text-xl font-semibold text-gray-900 mb-3">
-            Healthcare Registration
+        {/* Sidebar Header */}
+        <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-violet-600 text-white">
+          <h1 className="text-xl font-semibold mb-2">
+            Healthcare Provider
           </h1>
+          <p className="text-sm opacity-90">Complete your registration</p>
+        </div>
+
+        <div className="px-8 py-6 border-b border-gray-100">
           <div className="flex items-center gap-2 text-gray-600">
             <Clock className="h-4 w-4" />
-            <p className="text-sm font-medium">
-              Estimated time: <span className="text-blue-600">10-15 mins</span>
+                          <p className="text-sm font-medium">
+              Estimated time: <span className="text-violet-600">10-15 mins</span>
             </p>
           </div>
 
@@ -186,7 +193,7 @@ export function MultiStepRegistrationForm() {
           </div>
         </div>
 
-        <div className="flex-grow px-8 py-3 overflow-y-auto">
+        <div className="flex-grow px-8 py-6 overflow-y-auto">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-6">
             Registration Steps
           </h2>
@@ -201,24 +208,22 @@ export function MultiStepRegistrationForm() {
             layout="vertical"
             stepIcons={stepIcons}
           />
+        </div>
 
-          {/* <div className="mt-8 pt-6 border-t border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Help & Support</h3>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-700 flex items-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Registration Guide
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-700 flex items-center">
-                  <ClipboardList className="h-4 w-4 mr-2" />
-                  Required Documents
-                </a>
-              </li>
-            </ul>
-          </div> */}
+        {/* Sidebar Footer */}
+        <div className="px-8 py-6 border-t border-gray-100 bg-gray-50">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center text-gray-600">
+              <Shield className="h-4 w-4 mr-2 text-violet-600" />
+              <span className="text-sm font-medium">Secure Registration</span>
+            </div>
+            <Link href="#" className="text-violet-600 hover:text-violet-800 text-sm">
+              <HelpCircle className="h-4 w-4" />
+            </Link>
+          </div>
+          <p className="text-xs text-gray-500">
+            Your information is encrypted and protected
+          </p>
         </div>
       </div>
 
@@ -227,10 +232,10 @@ export function MultiStepRegistrationForm() {
         <div className="flex justify-end px-10 pt-5">
           <Link href="/auth/login">
             <Button
-              variant="default"
-              className=""
+              variant="outline"
+              className="border-violet-200 hover:bg-violet-50 text-violet-700"
             >
-              Login
+              Already have an account? Login
             </Button>
           </Link>
         </div>
@@ -240,7 +245,7 @@ export function MultiStepRegistrationForm() {
             className="flex flex-col h-full"
           >
             <div className="flex-grow p-8 md:p-12 overflow-y-auto">
-              <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-lg p-8 max-w-4xl mx-auto border border-gray-100 bg-gradient-to-br from-white to-blue-50/30">
                 {renderCurrentStep()}
               </div>
             </div>
@@ -265,7 +270,7 @@ export function MultiStepRegistrationForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-11 px-5 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                  className="h-11 px-5 rounded-md bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white transition-colors"
                 >
                   {isSubmitting ? (
                     <>
@@ -273,7 +278,7 @@ export function MultiStepRegistrationForm() {
                       Submitting...
                     </>
                   ) : (
-                    "Complete Registration"
+                    "Submit"
                   )}
                 </Button>
               ) : (
@@ -281,7 +286,7 @@ export function MultiStepRegistrationForm() {
                   type="button"
                   onClick={nextStep}
                   disabled={isSubmitting}
-                  className="h-11 px-5 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                  className="h-11 px-5 rounded-md bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white transition-colors"
                 >
                   Next <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>

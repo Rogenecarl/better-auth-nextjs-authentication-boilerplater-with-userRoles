@@ -41,49 +41,49 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
           </div>
           
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="permitNumber"
-                render={({ field }) => (
-                  <FormItem>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="permitNumber"
+            render={({ field }) => (
+              <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-gray-500" />
                       <span>Permit Number</span>
                     </FormLabel>
-                    <FormControl>
+                <FormControl>
                       <Input 
                         placeholder="Enter permit number" 
                         {...field} 
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="licenseNumber"
-                render={({ field }) => (
-                  <FormItem>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="licenseNumber"
+            render={({ field }) => (
+              <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-gray-500" />
                       <span>License Number</span>
                     </FormLabel>
-                    <FormControl>
+                <FormControl>
                       <Input 
                         placeholder="Enter license number" 
                         {...field} 
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
-                    </FormControl>
+                </FormControl>
                     <FormDescription className="text-xs text-gray-500">Optional if not applicable</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
             <FormField
               control={form.control}
@@ -149,46 +149,46 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
           </div>
           
           <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="businessImage"
-              render={({ field: { onChange, onBlur, name, ref } }) => (
-                <FormItem>
+        <FormField
+          control={form.control}
+          name="businessImage"
+          render={({ field: { onChange, onBlur, name, ref } }) => (
+            <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <FileImage className="h-4 w-4 text-gray-500" />
                     <span>Business Profile Image</span>
                   </FormLabel>
-                  <FormControl>
-                    <div className="flex flex-col gap-2">
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        name={name}
-                        ref={ref}
-                        onBlur={onBlur}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          onChange(file);
-                          setBusinessImageSelected(!!file);
-                        }}
+              <FormControl>
+                <div className="flex flex-col gap-2">
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    name={name}
+                    ref={ref}
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      onChange(file);
+                      setBusinessImageSelected(!!file);
+                    }}
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {businessImageSelected && (
+                  />
+                  {businessImageSelected && (
                         <p className="text-xs text-green-600 font-medium flex items-center gap-1">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                           File selected successfully
-                        </p>
-                      )}
-                    </div>
-                  </FormControl>
+                    </p>
+                  )}
+                </div>
+              </FormControl>
                   <FormDescription className="text-xs text-gray-500">Optional: A photo of your business premise</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
             <div className="pt-4">
               <h3 className="text-sm font-medium text-gray-700 mb-3">Image Best Practices</h3>
               <div className="grid grid-cols-2 gap-3 mb-4">
