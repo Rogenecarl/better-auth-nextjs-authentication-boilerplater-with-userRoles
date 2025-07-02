@@ -162,7 +162,7 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
                 <div className="flex flex-col gap-2">
                   <Input 
                     type="file" 
-                    accept="image/*" 
+                    accept="image/jpeg, image/png, image/jpg, image/webp" 
                     name={name}
                     ref={ref}
                     onBlur={onBlur}

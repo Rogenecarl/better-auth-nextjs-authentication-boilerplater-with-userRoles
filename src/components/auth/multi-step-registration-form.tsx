@@ -29,21 +29,26 @@ import {
   CheckCircle2,
   Shield,
   HelpCircle,
+  AlertCircle,
 } from "lucide-react";
 
 import { useState } from "react";
 import { registerProviderAction } from "@/actions/register-provider.action";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-// Static image URLs for file fields - using constants ensures consistency
-const STATIC_ID_IMAGE_URL = "https://example.com/static-id-image.jpg";
-const STATIC_BUSINESS_IMAGE_URL =
-  "https://example.com/static-business-image.jpg";
-const STATIC_PERMIT_IMAGE_URL = "https://example.com/static-permit-image.jpg";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export function MultiStepRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const router = useRouter();
 
   const form = useForm<CompleteRegistrationFormData>({
@@ -89,23 +94,34 @@ export function MultiStepRegistrationForm() {
     canGoToStep,
   } = useMultiStepForm(form);
 
-  const onSubmit = async (data: CompleteRegistrationFormData) => {
+  const handleSubmitReview = () => {
+    setShowReviewModal(true);
+  };
+
+  const handleContinueSubmission = async () => {
+    setShowReviewModal(false);
+    setShowConfirmationModal(true);
+  };
+
+  const handleFinalSubmit = async () => {
+    const data = form.getValues();
     try {
       setIsSubmitting(true);
+      setShowConfirmationModal(false);
 
-      // Create a new object with static image values replacing any file objects
-      const formDataWithStaticImages = {
+      // We'll pass the actual file objects to the server action
+      // The server will handle uploading them to Supabase
+      const formData = {
         ...data,
-        // Always provide these image URLs as strings, not as File objects
-        idImage: STATIC_ID_IMAGE_URL,
-        permitImageUrl: STATIC_PERMIT_IMAGE_URL,
-        // Only include businessImage if there was a file selected
-        businessImage: data.businessImage ? STATIC_BUSINESS_IMAGE_URL : null,
+        // Keep the actual File objects for upload
+        idImage: data.idImage,
+        permitImageUrl: data.permitImageUrl,
+        businessImage: data.businessImage,
       };
 
-      console.log("Submitting form with data:", formDataWithStaticImages);
+      console.log("Submitting form with data:", formData);
 
-      const result = await registerProviderAction(formDataWithStaticImages);
+      const result = await registerProviderAction(formData);
 
       if (result.error) {
         toast.error("Registration failed", {
@@ -160,6 +176,15 @@ export function MultiStepRegistrationForm() {
     <FileText key="documents" className="h-5 w-5 text-violet-500" />,
     <KeyRound key="account" className="h-5 w-5 text-violet-500" />,
   ];
+
+  const formData = form.getValues();
+
+  // Helper function to display file names in the review modal
+  const getFileName = (file: File | null | string) => {
+    if (!file) return "No file selected";
+    if (typeof file === "string") return file;
+    return file.name;
+  };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-50 to-blue-50/30">
@@ -241,7 +266,7 @@ export function MultiStepRegistrationForm() {
         </div>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(handleSubmitReview)}
             className="flex flex-col h-full"
           >
             <div className="flex-grow p-8 md:p-12 overflow-y-auto">
@@ -278,7 +303,7 @@ export function MultiStepRegistrationForm() {
                       Submitting...
                     </>
                   ) : (
-                    "Submit"
+                    "Review & Submit"
                   )}
                 </Button>
               ) : (
@@ -295,6 +320,211 @@ export function MultiStepRegistrationForm() {
           </form>
         </Form>
       </div>
+
+      {/* Review Information Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-center text-violet-700">
+              Review Your Information
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Please review all your information before final submission
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 my-4">
+            {/* Personal Information */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-violet-700 mb-3 flex items-center">
+                <User className="w-5 h-5 mr-2" /> Personal Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">{formData.firstName} {formData.lastName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="font-medium">{formData.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="font-medium">{formData.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">ID Type</p>
+                  <p className="font-medium">{formData.validIdType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">ID Document</p>
+                  <p className="font-medium text-violet-600">
+                    {formData.idImage ? getFileName(formData.idImage) : "No file selected"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Business Information */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-violet-700 mb-3 flex items-center">
+                <Building className="w-5 h-5 mr-2" /> Business Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Business Name</p>
+                  <p className="font-medium">{formData.businessName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Provider Type</p>
+                  <p className="font-medium">{formData.providerType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Business Email</p>
+                  <p className="font-medium">{formData.businessEmail}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Business Phone</p>
+                  <p className="font-medium">{formData.businessPhone}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium">
+                    {formData.businessAddress}, {formData.businessCity}, {formData.businessProvince} {formData.businessZipCode}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Services Information */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-violet-700 mb-3 flex items-center">
+                <ClipboardList className="w-5 h-5 mr-2" /> Services & Hours
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Services Offered</p>
+                  <div className="space-y-3">
+                    {formData.services.map((service, index) => (
+                      <div key={index} className="border-l-2 border-violet-400 pl-3 py-1">
+                        <p className="font-medium">{service.serviceName}</p>
+                        <p className="text-sm text-gray-600">{service.description}</p>
+                        {service.priceRange && (
+                          <p className="text-sm text-violet-600">Price: {service.priceRange}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <p className="text-sm text-gray-500">Operating Days</p>
+                    <p className="font-medium">{formData.operatingDays.join(", ")}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Hours</p>
+                    <p className="font-medium">{formData.openTime} - {formData.closeTime}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Business Documents */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-violet-700 mb-3 flex items-center">
+                <FileText className="w-5 h-5 mr-2" /> Business Documents
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Permit Number</p>
+                  <p className="font-medium">{formData.permitNumber}</p>
+                </div>
+                {formData.licenseNumber && (
+                  <div>
+                    <p className="text-sm text-gray-500">License Number</p>
+                    <p className="font-medium">{formData.licenseNumber}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-gray-500">Permit Document</p>
+                  <p className="font-medium text-violet-600">
+                    {formData.permitImageUrl ? getFileName(formData.permitImageUrl) : "No file selected"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Business Image</p>
+                  <p className="font-medium text-violet-600">
+                    {formData.businessImage ? getFileName(formData.businessImage) : "No file selected"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowReviewModal(false)}
+              className="border-gray-200"
+            >
+              Edit Information
+            </Button>
+            <Button 
+              type="button" 
+              onClick={handleContinueSubmission}
+              className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white"
+            >
+              Continue to Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Final Confirmation Modal */}
+      <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              <div className="flex justify-center mb-3">
+                <div className="bg-violet-100 p-3 rounded-full">
+                  <AlertCircle className="h-8 w-8 text-violet-600" />
+                </div>
+              </div>
+              Confirm Registration
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Are you sure you want to submit your registration? Once submitted, you will need to wait for approval from our team.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:justify-center mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowConfirmationModal(false)}
+              className="sm:w-1/3"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="button" 
+              onClick={handleFinalSubmit}
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white sm:w-1/3"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Confirm"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

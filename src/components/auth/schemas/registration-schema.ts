@@ -4,16 +4,18 @@ import { ProviderType } from "@/generated/prisma";
 const isServer = typeof window === "undefined";
 
 // Modified to accept both File objects and strings (for static URLs)
-const fileSchema = z
-  .union([
-    z
-      .any()
-      .refine(
-        (file) => (isServer ? file instanceof File : true),
-        "Invalid file format."
-      ),
-    z.string().min(1, "File URL is required"),
-  ])
+const fileSchema = z.any()
+  .refine(
+    (file) => {
+      // Accept null for optional files
+      if (file === null || file === undefined) return true;
+      // On the server, we'll get the file as a File object or a string URL
+      if (isServer) return true;
+      // In the browser, we expect a File object or a string URL
+      return file instanceof File || typeof file === "string";
+    },
+    "Invalid file format."
+  )
   .optional()
   .nullable();
 

@@ -91,13 +91,14 @@ export const auth = betterAuth({
         // Find the user by email
         const user = await prisma.user.findUnique({
           where: { email },
-          select: { status: true },
+          select: { status: true, role: true },
         });
 
         // If user exists and is not approved, throw an error
-        if (user && user.status !== "ACTIVE") {
+        if (user?.role === "HEALTH_PROVIDER" && user.status !== "ACTIVE") {
           throw new APIError("UNAUTHORIZED", {
-            message: "Your account is pending approval by an administrator.",
+            message:
+              "Your account is still in review. Please wait for the administrator to review your account.",
             code: "ACCOUNT_PENDING_APPROVAL",
           });
         }
@@ -110,7 +111,13 @@ export const auth = betterAuth({
         type: ["USER", "HEALTH_PROVIDER", "ADMIN"],
       },
       status: {
-        type: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING_VERIFICATION", "PENDING_APPROVAL"],
+        type: [
+          "ACTIVE",
+          "INACTIVE",
+          "SUSPENDED",
+          "PENDING_VERIFICATION",
+          "PENDING_APPROVAL",
+        ],
       },
     },
   },

@@ -68,7 +68,8 @@ export async function signInEmailAction(formData: FormData) {
           redirect("/auth/verify?error=email_not_verified");
         case "ACCOUNT_PENDING_APPROVAL":
           return {
-            error: "Your account is pending approval by an administrator.",
+            //auth.ts error message for approval pending in health provider
+            error: err.message,
           };
         default:
           return { error: err.message };

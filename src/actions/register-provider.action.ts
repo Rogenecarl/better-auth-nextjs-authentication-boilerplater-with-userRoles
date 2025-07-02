@@ -12,6 +12,7 @@ import {
   ProviderStatus,
   DocumentType,
 } from "@/generated/prisma";
+import { supabase } from "@/lib/supabase";
 
 export async function registerProviderAction(
   data: CompleteRegistrationFormData
@@ -20,7 +21,7 @@ export async function registerProviderAction(
   if (!validationResult.success) {
     return { error: "Invalid form data. Please review all steps." };
   }
-  
+
   const {
     email,
     businessEmail,
@@ -92,6 +93,72 @@ export async function registerProviderAction(
       select: { id: true },
     });
 
+    // Initialize variables to store uploaded file URLs
+    let businessImageUrl = null;
+    let idImageUrl = null;
+    let permitImageUrl_uploaded = null;
+
+    // Upload ID image to Supabase if provided
+    if (idImage) {
+      const { data: idData, error: idError } = await supabase.storage
+        .from("provider-documents/id-images")
+        .upload(`${newUser.id}-id-${Date.now()}`, idImage, {
+          upsert: true,
+        });
+
+      if (idError) {
+        console.error("ID IMAGE UPLOAD ERROR:", idError);
+      } else {
+        // Get the public URL for the uploaded file
+        const { data: idPublicUrl } = supabase.storage
+          .from("provider-documents/id-images")
+          .getPublicUrl(idData.path);
+        
+        idImageUrl = idPublicUrl.publicUrl;
+      }
+    }
+
+    // Upload business permit image to Supabase if provided
+    if (permitImageUrl) {
+      const { data: permitData, error: permitError } = await supabase.storage
+        .from("provider-documents/permit-images")
+        .upload(`${newUser.id}-permit-${Date.now()}`, permitImageUrl, {
+          upsert: true,
+        });
+
+      if (permitError) {
+        console.error("PERMIT IMAGE UPLOAD ERROR:", permitError);
+      } else {
+        // Get the public URL for the uploaded file
+        const { data: permitPublicUrl } = supabase.storage
+          .from("provider-documents/permit-images")
+          .getPublicUrl(permitData.path);
+        
+        permitImageUrl_uploaded = permitPublicUrl.publicUrl;
+      }
+    }
+
+    // Upload business image to Supabase if provided
+    if (businessImage) {
+      const { data: imageData, error: imageError } = await supabase.storage
+        .from("provider-documents/business-images")
+        .upload(`${newUser.id}-business-${Date.now()}`, businessImage, {
+          upsert: true,
+        });
+
+      if (imageError) {
+        console.error("BUSINESS IMAGE UPLOAD ERROR:", imageError);
+      } else {
+        // Get the public URL for the uploaded file
+        const { data: imagePublicUrl } = supabase.storage
+          .from("provider-documents/business-images")
+          .getPublicUrl(imageData.path);
+        
+        businessImageUrl = imagePublicUrl.publicUrl;
+      }
+    }
+
+    // Create provider in database
     await prisma.$transaction(async (tx) => {
       const newProvider = await tx.healthProvider.create({
         data: {
@@ -105,36 +172,36 @@ export async function registerProviderAction(
           province: businessProvince,
           zipCode: businessZipCode,
           status: ProviderStatus.PENDING,
-          images: businessImage ? [businessImage] : [],
+          images: businessImageUrl ? [businessImageUrl] : [],
           latitude: latitude ? parseFloat(latitude) : 0,
           longitude: longitude ? parseFloat(longitude) : 0,
         },
       });
 
       const documentsToCreate = [];
-      if (idImage && validIdType) {
+      if (idImageUrl && validIdType) {
         documentsToCreate.push({
           userId: newUser.id,
-          imageUrl: idImage,
+          imageUrl: idImageUrl,
           type: validIdType
             .toUpperCase()
             .replace(/'/g, "")
             .replace(/ /g, "_") as DocumentType,
         });
       }
-      
+
       // Make sure permitImageUrl exists in the data
-      if (permitImageUrl && (permitNumber || licenseNumber)) {
+      if (permitImageUrl_uploaded && (permitNumber || licenseNumber)) {
         documentsToCreate.push({
           providerId: newProvider.id,
-          imageUrl: permitImageUrl,
+          imageUrl: permitImageUrl_uploaded,
           identifier: `Permit: ${permitNumber}, License: ${
             licenseNumber || "N/A"
           }`,
           type: DocumentType.BUSINESS_PERMIT,
         });
       }
-      
+
       if (documentsToCreate.length > 0) {
         await tx.document.createMany({ data: documentsToCreate });
       }
