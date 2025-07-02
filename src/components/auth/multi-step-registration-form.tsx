@@ -109,6 +109,11 @@ export function MultiStepRegistrationForm() {
       setIsSubmitting(true);
       setShowConfirmationModal(false);
 
+      // Show loading toast
+      const loadingToast = toast.loading("Submitting your registration...", {
+        description: "Please wait while we upload your files and create your account",
+      });
+
       // We'll pass the actual file objects to the server action
       // The server will handle uploading them to Supabase
       const formData = {
@@ -122,6 +127,9 @@ export function MultiStepRegistrationForm() {
       console.log("Submitting form with data:", formData);
 
       const result = await registerProviderAction(formData);
+
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
 
       if (result.error) {
         toast.error("Registration failed", {
@@ -192,17 +200,16 @@ export function MultiStepRegistrationForm() {
       <div className="w-full md:w-80 md:min-h-screen bg-white shadow-lg flex flex-col md:fixed md:top-0 md:bottom-0 md:left-0 z-10">
         {/* Sidebar Header */}
         <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-violet-600 text-white">
-          <h1 className="text-xl font-semibold mb-2">
-            Healthcare Provider
-          </h1>
+          <h1 className="text-xl font-semibold mb-2">Healthcare Provider</h1>
           <p className="text-sm opacity-90">Complete your registration</p>
         </div>
 
         <div className="px-8 py-6 border-b border-gray-100">
           <div className="flex items-center gap-2 text-gray-600">
             <Clock className="h-4 w-4" />
-                          <p className="text-sm font-medium">
-              Estimated time: <span className="text-violet-600">10-15 mins</span>
+            <p className="text-sm font-medium">
+              Estimated time:{" "}
+              <span className="text-violet-600">10-15 mins</span>
             </p>
           </div>
 
@@ -242,7 +249,10 @@ export function MultiStepRegistrationForm() {
               <Shield className="h-4 w-4 mr-2 text-violet-600" />
               <span className="text-sm font-medium">Secure Registration</span>
             </div>
-            <Link href="#" className="text-violet-600 hover:text-violet-800 text-sm">
+            <Link
+              href="#"
+              className="text-violet-600 hover:text-violet-800 text-sm"
+            >
               <HelpCircle className="h-4 w-4" />
             </Link>
           </div>
@@ -342,7 +352,9 @@ export function MultiStepRegistrationForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Name</p>
-                  <p className="font-medium">{formData.firstName} {formData.lastName}</p>
+                  <p className="font-medium">
+                    {formData.firstName} {formData.lastName}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
@@ -359,7 +371,9 @@ export function MultiStepRegistrationForm() {
                 <div>
                   <p className="text-sm text-gray-500">ID Document</p>
                   <p className="font-medium text-violet-600">
-                    {formData.idImage ? getFileName(formData.idImage) : "No file selected"}
+                    {formData.idImage
+                      ? getFileName(formData.idImage)
+                      : "No file selected"}
                   </p>
                 </div>
               </div>
@@ -390,7 +404,8 @@ export function MultiStepRegistrationForm() {
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500">Address</p>
                   <p className="font-medium">
-                    {formData.businessAddress}, {formData.businessCity}, {formData.businessProvince} {formData.businessZipCode}
+                    {formData.businessAddress}, {formData.businessCity},{" "}
+                    {formData.businessProvince} {formData.businessZipCode}
                   </p>
                 </div>
               </div>
@@ -406,11 +421,18 @@ export function MultiStepRegistrationForm() {
                   <p className="text-sm text-gray-500 mb-2">Services Offered</p>
                   <div className="space-y-3">
                     {formData.services.map((service, index) => (
-                      <div key={index} className="border-l-2 border-violet-400 pl-3 py-1">
+                      <div
+                        key={index}
+                        className="border-l-2 border-violet-400 pl-3 py-1"
+                      >
                         <p className="font-medium">{service.serviceName}</p>
-                        <p className="text-sm text-gray-600">{service.description}</p>
+                        <p className="text-sm text-gray-600">
+                          {service.description}
+                        </p>
                         {service.priceRange && (
-                          <p className="text-sm text-violet-600">Price: {service.priceRange}</p>
+                          <p className="text-sm text-violet-600">
+                            Price: {service.priceRange}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -419,11 +441,15 @@ export function MultiStepRegistrationForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                   <div>
                     <p className="text-sm text-gray-500">Operating Days</p>
-                    <p className="font-medium">{formData.operatingDays.join(", ")}</p>
+                    <p className="font-medium">
+                      {formData.operatingDays.join(", ")}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Hours</p>
-                    <p className="font-medium">{formData.openTime} - {formData.closeTime}</p>
+                    <p className="font-medium">
+                      {formData.openTime} - {formData.closeTime}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -448,13 +474,17 @@ export function MultiStepRegistrationForm() {
                 <div>
                   <p className="text-sm text-gray-500">Permit Document</p>
                   <p className="font-medium text-violet-600">
-                    {formData.permitImageUrl ? getFileName(formData.permitImageUrl) : "No file selected"}
+                    {formData.permitImageUrl
+                      ? getFileName(formData.permitImageUrl)
+                      : "No file selected"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Business Image</p>
                   <p className="font-medium text-violet-600">
-                    {formData.businessImage ? getFileName(formData.businessImage) : "No file selected"}
+                    {formData.businessImage
+                      ? getFileName(formData.businessImage)
+                      : "No file selected"}
                   </p>
                 </div>
               </div>
@@ -470,8 +500,8 @@ export function MultiStepRegistrationForm() {
             >
               Edit Information
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               onClick={handleContinueSubmission}
               className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white"
             >
@@ -482,7 +512,10 @@ export function MultiStepRegistrationForm() {
       </Dialog>
 
       {/* Final Confirmation Modal */}
-      <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+      <Dialog
+        open={showConfirmationModal}
+        onOpenChange={setShowConfirmationModal}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center">
@@ -494,7 +527,8 @@ export function MultiStepRegistrationForm() {
               Confirm Registration
             </DialogTitle>
             <DialogDescription className="text-center">
-              Are you sure you want to submit your registration? Once submitted, you will need to wait for approval from our team.
+              Are you sure you want to submit your registration? Once submitted,
+              you will need to wait for approval from our team.
             </DialogDescription>
           </DialogHeader>
 
@@ -507,8 +541,8 @@ export function MultiStepRegistrationForm() {
             >
               Cancel
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               onClick={handleFinalSubmit}
               disabled={isSubmitting}
               className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white sm:w-1/3"
