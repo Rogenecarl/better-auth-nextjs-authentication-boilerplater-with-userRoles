@@ -9,7 +9,7 @@ interface StepIndicatorProps {
   steps: Step[];
   currentStep: number;
   completedSteps: number[];
-  onStepClick: (step: number) => void;
+  onStepClick: (step: number, e?: React.MouseEvent) => void;
   canGoToStep: (step: number) => boolean;
   layout?: "horizontal" | "vertical";
   stepIcons?: ReactNode[];
@@ -50,7 +50,13 @@ export function StepIndicator({
               }`}
             >
               <button
-                onClick={() => canGoToStep(step.id) && onStepClick(step.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (canGoToStep(step.id)) {
+                    onStepClick(step.id, e);
+                  }
+                }}
                 disabled={!canGoToStep(step.id)}
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 z-10",
@@ -121,7 +127,13 @@ export function StepIndicator({
             className="relative z-10 flex flex-col items-center w-full max-w-[150px]"
           >
             <button
-              onClick={() => canGoToStep(step.id) && onStepClick(step.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (canGoToStep(step.id)) {
+                  onStepClick(step.id, e);
+                }
+              }}
               disabled={!canGoToStep(step.id)}
               className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200",
@@ -190,7 +202,13 @@ export function StepIndicator({
           {steps.map((step, index) => (
             <button
               key={step.id}
-              onClick={() => canGoToStep(step.id) && onStepClick(step.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (canGoToStep(step.id)) {
+                  onStepClick(step.id, e);
+                }
+              }}
               disabled={!canGoToStep(step.id)}
               className={cn(
                 "flex flex-col items-center min-w-[70px] px-2",

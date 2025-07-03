@@ -31,11 +31,12 @@ import {
 
 interface BusinessInfoStepProps {
   form: UseFormReturn<CompleteRegistrationFormData>;
+  showValidationErrors?: boolean;
 }
 
 const providerTypes = Object.values(ProviderType);
 
-export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
+export function BusinessInfoStep({ form, showValidationErrors = false }: BusinessInfoStepProps) {
   return (
     <div className="space-y-8">
       <div>
@@ -78,7 +79,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                       className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     />
                   </FormControl>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />
@@ -113,7 +114,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                     Choose the category that best describes your healthcare
                     business
                   </FormDescription>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />
@@ -135,7 +136,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </FormControl>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -156,7 +157,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </FormControl>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -193,7 +194,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                       className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     />
                   </FormControl>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />
@@ -215,7 +216,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </FormControl>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -235,7 +236,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </FormControl>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -255,7 +256,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </FormControl>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -281,7 +282,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                     <FormDescription className="text-xs">
                       Optional coordinates for map location
                     </FormDescription>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />
@@ -304,7 +305,7 @@ export function BusinessInfoStep({ form }: BusinessInfoStepProps) {
                     <FormDescription className="text-xs">
                       Optional coordinates for map location
                     </FormDescription>
-                    <FormMessage />
+                    {showValidationErrors && <FormMessage />}
                   </FormItem>
                 )}
               />

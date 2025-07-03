@@ -1,20 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { FileCheck, FileImage, FileText, Info, BadgeCheck, Shield, Building, Image } from "lucide-react"
+import { FileCheck, FileImage, FileText, Shield, Image } from "lucide-react"
 
 interface BusinessDocumentsStepProps {
-  form: UseFormReturn<CompleteRegistrationFormData>
+  form: UseFormReturn<CompleteRegistrationFormData>;
+  showValidationErrors?: boolean;
 }
 
-export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
+export function BusinessDocumentsStep({ form, showValidationErrors = false }: BusinessDocumentsStepProps) {
   const [businessImageSelected, setBusinessImageSelected] = useState(false)
   const [permitImageSelected, setPermitImageSelected] = useState(false)
+  
+  // Check if files are already selected when component mounts or when navigating back
+  useEffect(() => {
+    const permitImage = form.getValues("permitImageUrl");
+    const businessImage = form.getValues("businessImage");
+    setPermitImageSelected(!!permitImage);
+    setBusinessImageSelected(!!businessImage);
+  }, [form]);
   
   return (
     <div className="space-y-8">
@@ -58,7 +66,7 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                 </FormControl>
-                <FormMessage />
+                {showValidationErrors && <FormMessage />}
               </FormItem>
             )}
           />
@@ -78,8 +86,8 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
                         className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                 </FormControl>
-                    <FormDescription className="text-xs text-gray-500">Optional if not applicable</FormDescription>
-                <FormMessage />
+                    <FormDescription className="text-xs text-gray-500 sr-only">Optional if not applicable</FormDescription>
+                {showValidationErrors && <FormMessage />}
               </FormItem>
             )}
           />
@@ -114,13 +122,13 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
-                          File selected successfully
+                          File selected{form.getValues("permitImageUrl") instanceof File ? `: ${(form.getValues("permitImageUrl") as File).name}` : ''}
                         </p>
                       )}
                     </div>
                   </FormControl>
                   <FormDescription className="text-xs text-gray-500">Upload a scan of your business permit or license</FormDescription>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />
@@ -178,13 +186,13 @@ export function BusinessDocumentsStep({ form }: BusinessDocumentsStepProps) {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
-                          File selected successfully
+                          File selected{form.getValues("businessImage") instanceof File ? `: ${(form.getValues("businessImage") as File).name}` : ''}
                     </p>
                   )}
                 </div>
               </FormControl>
                   <FormDescription className="text-xs text-gray-500">Optional: A photo of your business premise</FormDescription>
-              <FormMessage />
+              {showValidationErrors && <FormMessage />}
             </FormItem>
           )}
         />

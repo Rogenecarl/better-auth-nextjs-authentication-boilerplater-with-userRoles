@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema";
 import {
@@ -33,6 +33,7 @@ import {
 
 interface PersonalInfoStepProps {
   form: UseFormReturn<CompleteRegistrationFormData>;
+  showValidationErrors?: boolean;
 }
 
 const validIdTypes = [
@@ -44,8 +45,14 @@ const validIdTypes = [
   "Professional License",
 ];
 
-export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ form, showValidationErrors = false }: PersonalInfoStepProps) {
   const [fileSelected, setFileSelected] = useState(false);
+  
+  // Check if a file is already selected when component mounts or when navigating back
+  useEffect(() => {
+    const idImage = form.getValues("idImage");
+    setFileSelected(!!idImage);
+  }, [form]);
   
   return (
     <div className="space-y-8">
@@ -88,7 +95,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                       className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                     />
                 </FormControl>
-                  <FormMessage className="text-red-500" />
+                  {showValidationErrors && <FormMessage className="text-red-500" />}
               </FormItem>
             )}
           />
@@ -109,7 +116,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                       className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                     />
                 </FormControl>
-                  <FormMessage className="text-red-500" />
+                  {showValidationErrors && <FormMessage className="text-red-500" />}
               </FormItem>
             )}
           />
@@ -135,7 +142,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                 <FormDescription className="text-xs text-gray-500 mt-1">
                   This email will be used for login and account verification
                 </FormDescription>
-                <FormMessage className="text-red-500" />
+                {showValidationErrors && <FormMessage className="text-red-500" />}
             </FormItem>
           )}
         />
@@ -157,7 +164,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                     className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all"
                   />
               </FormControl>
-                <FormMessage className="text-red-500" />
+                {showValidationErrors && <FormMessage className="text-red-500" />}
             </FormItem>
           )}
         />
@@ -204,7 +211,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   <FormDescription className="text-xs text-gray-500 mt-1">
                     Choose the type of government ID you will provide
                   </FormDescription>
-                  <FormMessage className="text-red-500" />
+                  {showValidationErrors && <FormMessage className="text-red-500" />}
               </FormItem>
             )}
           />
@@ -231,12 +238,13 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                         onChange(file);
                         setFileSelected(!!file);
                       }}
+                      
                         className="h-11 rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     {fileSelected && (
                         <div className="flex items-center text-xs text-green-600 font-medium mt-1">
                           <Check className="h-4 w-4 mr-1" />
-                          <span>File selected successfully</span>
+                          <span>File selected{form.getValues("idImage") instanceof File ? `: ${(form.getValues("idImage") as File).name}` : ''}</span>
                         </div>
                     )}
                   </div>
@@ -244,7 +252,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   <FormDescription className="text-xs text-gray-500 mt-1">
                     Upload a clear image of your government-issued ID
                 </FormDescription>
-                  <FormMessage className="text-red-500" />
+                  {showValidationErrors && <FormMessage className="text-red-500" />}
               </FormItem>
             )}
           />

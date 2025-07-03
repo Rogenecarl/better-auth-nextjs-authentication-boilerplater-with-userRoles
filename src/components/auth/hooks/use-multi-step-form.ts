@@ -15,6 +15,10 @@ export function useMultiStepForm(
 ) {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  // Track which steps have had their validation triggered
+  const [validatedSteps, setValidatedSteps] = useState<number[]>([]);
+  // Track which step we've attempted to validate (for showing errors)
+  const [attemptedValidationStep, setAttemptedValidationStep] = useState<number | null>(null);
 
   const steps: Step[] = [
     {
@@ -44,28 +48,67 @@ export function useMultiStepForm(
     },
   ];
 
-  const nextStep = async () => {
+  const nextStep = async (e?: React.MouseEvent | React.FormEvent) => {
+    // Prevent default form submission if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Mark this step as attempted for validation
+    setAttemptedValidationStep(currentStep);
+    
     const isValid = await validateCurrentStep();
     if (isValid && currentStep < steps.length) {
-      setCompletedSteps((prev) => [...prev, currentStep]);
+      setCompletedSteps((prev) => 
+        prev.includes(currentStep) ? prev : [...prev, currentStep]
+      );
       setCurrentStep((prev) => prev + 1);
+      // Clear validation state when moving to next step
+      form.clearErrors();
+      // Reset the attempted validation step
+      setAttemptedValidationStep(null);
     }
   };
 
-  const prevStep = () => {
+  const prevStep = (e?: React.MouseEvent) => {
+    // Prevent default form submission if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
+      // Clear validation state when moving to previous step
+      form.clearErrors();
+      // Reset the attempted validation step
+      setAttemptedValidationStep(null);
     }
   };
 
-  const goToStep = (step: number) => {
+  const goToStep = (step: number, e?: React.MouseEvent) => {
+    // Prevent default form submission if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (step >= 1 && step <= steps.length && canGoToStep(step)) {
       setCurrentStep(step);
+      // Clear validation state when jumping to a step
+      form.clearErrors();
+      // Reset the attempted validation step
+      setAttemptedValidationStep(null);
     }
   };
 
   const validateCurrentStep = async (): Promise<boolean> => {
     const fieldsToValidate = getFieldsForStep(currentStep);
+    // Mark this step as validated
+    setValidatedSteps((prev) => 
+      prev.includes(currentStep) ? prev : [...prev, currentStep]
+    );
     const result = await form.trigger(fieldsToValidate);
     return result;
   };
@@ -191,6 +234,12 @@ export function useMultiStepForm(
     return false;
   };
 
+  // Check if a step has been validated (to show/hide errors)
+  const isStepValidated = (stepId: number): boolean => {
+    // Only show validation errors if we've attempted to validate this specific step
+    return attemptedValidationStep === stepId;
+  };
+
   return {
     currentStep,
     steps,
@@ -201,5 +250,7 @@ export function useMultiStepForm(
     canGoToStep,
     validateCurrentStep,
     getFieldsForStep,
+    validatedSteps,
+    isStepValidated,
   };
 }

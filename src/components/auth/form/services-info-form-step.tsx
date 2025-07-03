@@ -23,7 +23,8 @@ import {
 } from "lucide-react"
 
 interface ServicesInfoStepProps {
-  form: UseFormReturn<CompleteRegistrationFormData>
+  form: UseFormReturn<CompleteRegistrationFormData>;
+  showValidationErrors?: boolean;
 }
 
 const daysOfWeek = [
@@ -56,7 +57,7 @@ const timeSlots = [
   "22:00",
 ]
 
-export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
+export function ServicesInfoStep({ form, showValidationErrors = false }: ServicesInfoStepProps) {
   const watchServices = form.watch("services") || []
 
   const addService = () => {
@@ -131,7 +132,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                             className="h-11 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           />
                         </FormControl>
-                        <FormMessage />
+                        {showValidationErrors && <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -152,7 +153,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                             className="min-h-24 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           />
                         </FormControl>
-                        <FormMessage />
+                        {showValidationErrors && <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -176,7 +177,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                         <FormDescription className="text-xs text-gray-500">
                           Optional - Provide an estimate or range of prices
                         </FormDescription>
-                      <FormMessage />
+                        {showValidationErrors && <FormMessage />}
                     </FormItem>
                   )}
                 />
@@ -243,7 +244,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                           </FormItem>
                   ))}
                 </div>
-                <FormMessage />
+                {showValidationErrors && <FormMessage />}
               </FormItem>
             )}
           />
@@ -271,7 +272,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                       ))}
                     </select>
                   </FormControl>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />
@@ -298,7 +299,7 @@ export function ServicesInfoStep({ form }: ServicesInfoStepProps) {
                       ))}
                     </select>
                   </FormControl>
-                  <FormMessage />
+                  {showValidationErrors && <FormMessage />}
                 </FormItem>
               )}
             />

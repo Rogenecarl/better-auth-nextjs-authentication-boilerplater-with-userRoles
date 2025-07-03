@@ -32,7 +32,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { registerProviderAction } from "@/actions/register-provider.action";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -49,11 +49,15 @@ export function MultiStepRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [attemptedValidationStep, setAttemptedValidationStep] = useState<number | null>(null);
   const router = useRouter();
 
   const form = useForm<CompleteRegistrationFormData>({
     resolver: zodResolver(completeRegistrationSchema),
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+    criteriaMode: "firstError",
+    shouldFocusError: true,
     defaultValues: {
       email: "",
       firstName: "",
@@ -92,15 +96,106 @@ export function MultiStepRegistrationForm() {
     goToStep,
     isStepComplete,
     canGoToStep,
+    isStepValidated,
   } = useMultiStepForm(form);
 
   const handleSubmitReview = () => {
+    // If we're on the password step, validate password fields first
+    if (currentStep === 5) {
+      const password = form.getValues("password");
+      const confirmPassword = form.getValues("confirmPassword");
+      
+      // Check for validation errors
+      let hasErrors = false;
+      
+      if (!password || password.length < 8) {
+        form.setError("password", {
+          type: "manual",
+          message: "Password must be at least 8 characters"
+        });
+        hasErrors = true;
+      }
+      
+      if (!confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: "Please confirm your password"
+        });
+        hasErrors = true;
+      } else if (password !== confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: "Passwords don't match"
+        });
+        hasErrors = true;
+      }
+      
+      // Only show review modal if there are no errors
+      if (hasErrors) {
+        // Mark this step as attempted for validation to show errors
+        setAttemptedValidationStep(5);
+        return;
+      }
+    }
+    
+    // If validation passes or we're not on the password step, show the review modal
     setShowReviewModal(true);
   };
 
   const handleContinueSubmission = async () => {
     setShowReviewModal(false);
     setShowConfirmationModal(true);
+  };
+
+  // Custom function to handle next step with proper validation
+  const handleNextStep = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent default form submission
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Clear any previous errors before validating
+    form.clearErrors();
+    
+    // Special handling for the password step
+    if (currentStep === 5) {
+      // Get password values
+      const password = form.getValues("password");
+      const confirmPassword = form.getValues("confirmPassword");
+      
+      // Manual validation for password step
+      let hasErrors = false;
+      
+      if (!password || password.length < 8) {
+        form.setError("password", {
+          type: "manual",
+          message: "Password must be at least 8 characters"
+        });
+        hasErrors = true;
+      }
+      
+      if (!confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: "Please confirm your password"
+        });
+        hasErrors = true;
+      } else if (password !== confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: "Passwords don't match"
+        });
+        hasErrors = true;
+      }
+      
+      // If no errors, proceed to review
+      if (!hasErrors) {
+        handleSubmitReview();
+      }
+      return;
+    }
+    
+    // For other steps, use the normal validation
+    await nextStep(e);
   };
 
   const handleFinalSubmit = async () => {
@@ -111,7 +206,8 @@ export function MultiStepRegistrationForm() {
 
       // Show loading toast
       const loadingToast = toast.loading("Submitting your registration...", {
-        description: "Please wait while we upload your files and create your account",
+        description:
+          "Please wait while we upload your files and create your account",
       });
 
       // We'll pass the actual file objects to the server action
@@ -160,19 +256,34 @@ export function MultiStepRegistrationForm() {
   };
 
   const renderCurrentStep = () => {
+    // Check if the current step has been validated
+    const showValidation = isStepValidated(currentStep);
+    
+    // Clear any existing errors when first rendering a step
+    useEffect(() => {
+      if (!showValidation) {
+        form.clearErrors();
+      }
+    }, [currentStep, form, showValidation]);
+    
     switch (currentStep) {
       case 1:
-        return <PersonalInfoStep form={form} />;
+        return <PersonalInfoStep form={form} showValidationErrors={showValidation} />;
       case 2:
-        return <BusinessInfoStep form={form} />;
+        return <BusinessInfoStep form={form} showValidationErrors={showValidation} />;
       case 3:
-        return <ServicesInfoStep form={form} />;
+        return <ServicesInfoStep form={form} showValidationErrors={showValidation} />;
       case 4:
-        return <BusinessDocumentsStep form={form} />;
+        return <BusinessDocumentsStep form={form} showValidationErrors={showValidation} />;
       case 5:
-        return <AccountSetupStep form={form} />;
+        return (
+          <AccountSetupStep 
+            form={form} 
+            showValidationErrors={showValidation || attemptedValidationStep === 5} 
+          />
+        );
       default:
-        return <PersonalInfoStep form={form} />;
+        return <PersonalInfoStep form={form} showValidationErrors={showValidation} />;
     }
   };
 
@@ -235,7 +346,7 @@ export function MultiStepRegistrationForm() {
             completedSteps={steps
               .filter((step) => isStepComplete(step.id))
               .map((s) => s.id)}
-            onStepClick={goToStep}
+            onStepClick={(stepId, e) => goToStep(stepId, e)}
             canGoToStep={canGoToStep}
             layout="vertical"
             stepIcons={stepIcons}
@@ -276,7 +387,13 @@ export function MultiStepRegistrationForm() {
         </div>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmitReview)}
+            onSubmit={(e) => {
+              // Prevent default form submission
+              e.preventDefault();
+              e.stopPropagation();
+              // Don't call handleSubmitReview here since we're handling it in the button click
+              // This prevents double validation
+            }}
             className="flex flex-col h-full"
           >
             <div className="flex-grow p-8 md:p-12 overflow-y-auto">
@@ -289,7 +406,11 @@ export function MultiStepRegistrationForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={prevStep}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  prevStep(e);
+                }}
                 disabled={currentStep === 1 || isSubmitting}
                 className="h-11 px-5 rounded-md border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300 transition-colors"
               >
@@ -305,6 +426,11 @@ export function MultiStepRegistrationForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSubmitReview();
+                  }}
                   className="h-11 px-5 rounded-md bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white transition-colors"
                 >
                   {isSubmitting ? (
@@ -319,7 +445,11 @@ export function MultiStepRegistrationForm() {
               ) : (
                 <Button
                   type="button"
-                  onClick={nextStep}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleNextStep(e);
+                  }}
                   disabled={isSubmitting}
                   className="h-11 px-5 rounded-md bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white transition-colors"
                 >
