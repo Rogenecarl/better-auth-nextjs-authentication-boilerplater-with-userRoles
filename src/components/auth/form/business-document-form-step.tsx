@@ -5,7 +5,7 @@ import type { UseFormReturn } from "react-hook-form"
 import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { FileCheck, FileImage, FileText, Shield, Image } from "lucide-react"
+import { FileCheck, FileImage, FileText, Shield, ImageIcon } from "lucide-react"
 
 interface BusinessDocumentsStepProps {
   form: UseFormReturn<CompleteRegistrationFormData>;
@@ -148,7 +148,7 @@ export function BusinessDocumentsStep({ form, showValidationErrors = false }: Bu
         <div className="space-y-6">
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 shadow-sm">
             <h3 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
-              <Image className="h-4 w-4" />
+              <ImageIcon className="h-4 w-4" />
               <span>Business Profile</span>
             </h3>
             <p className="text-sm text-blue-700 mb-2">

@@ -32,7 +32,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { registerProviderAction } from "@/actions/register-provider.action";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -232,8 +232,8 @@ export function MultiStepRegistrationForm() {
           description: result.error,
         });
         // If there's a specific field error, focus on that field
-        if (result.field && form.getFieldState(result.field as any)) {
-          form.setError(result.field as any, {
+        if (result.field && form.getFieldState(result.field as keyof CompleteRegistrationFormData)) {
+          form.setError(result.field as keyof CompleteRegistrationFormData, {
             type: "manual",
             message: result.error,
           });
@@ -255,16 +255,9 @@ export function MultiStepRegistrationForm() {
     }
   };
 
-  const renderCurrentStep = () => {
+  function renderCurrentStep() {
     // Check if the current step has been validated
     const showValidation = isStepValidated(currentStep);
-    
-    // Clear any existing errors when first rendering a step
-    useEffect(() => {
-      if (!showValidation) {
-        form.clearErrors();
-      }
-    }, [currentStep, form, showValidation]);
     
     switch (currentStep) {
       case 1:
@@ -396,13 +389,13 @@ export function MultiStepRegistrationForm() {
             }}
             className="flex flex-col h-full"
           >
-            <div className="flex-grow p-8 md:p-12 overflow-y-auto">
+            <div className="flex-grow p-8 md:p-12 pb-24 overflow-y-auto">
               <div className="bg-white rounded-2xl shadow-lg p-8 max-w-4xl mx-auto border border-gray-100 bg-gradient-to-br from-white to-blue-50/30">
                 {renderCurrentStep()}
               </div>
             </div>
 
-            <div className="p-6 bg-white border-t border-gray-100 shadow-md flex justify-between items-center">
+            <div className="fixed bottom-0 left-0 right-0 md:left-80 p-6 bg-white border-t border-gray-100 shadow-md flex justify-between items-center z-10">
               <Button
                 type="button"
                 variant="outline"

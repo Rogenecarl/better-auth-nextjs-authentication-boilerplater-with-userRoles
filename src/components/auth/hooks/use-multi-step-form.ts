@@ -14,7 +14,6 @@ export function useMultiStepForm(
   form: UseFormReturn<CompleteRegistrationFormData>
 ) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   // Track which steps have had their validation triggered
   const [validatedSteps, setValidatedSteps] = useState<number[]>([]);
   // Track which step we've attempted to validate (for showing errors)
@@ -60,9 +59,6 @@ export function useMultiStepForm(
     
     const isValid = await validateCurrentStep();
     if (isValid && currentStep < steps.length) {
-      setCompletedSteps((prev) => 
-        prev.includes(currentStep) ? prev : [...prev, currentStep]
-      );
       setCurrentStep((prev) => prev + 1);
       // Clear validation state when moving to next step
       form.clearErrors();

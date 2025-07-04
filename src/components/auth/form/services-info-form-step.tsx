@@ -3,7 +3,7 @@
 import { useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import type { CompleteRegistrationFormData } from "@/components/auth/schemas/registration-schema"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"

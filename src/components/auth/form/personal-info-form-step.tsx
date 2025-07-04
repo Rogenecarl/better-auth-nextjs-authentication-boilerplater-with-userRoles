@@ -27,7 +27,7 @@ import {
   Check, 
   BadgeCheck, 
   FileImage, 
-  Info,
+
   ShieldCheck
 } from "lucide-react";
 

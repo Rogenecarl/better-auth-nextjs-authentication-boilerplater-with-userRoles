@@ -9,7 +9,6 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,7 @@ import {
   Mail,
   MapPin,
   Map,
-  BadgeCheck,
+
   Store,
   LocateFixed,
 } from "lucide-react";

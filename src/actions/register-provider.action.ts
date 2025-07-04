@@ -243,7 +243,7 @@ export async function registerProviderAction(
       success:
         "Registration successful! Please check your email for verification.",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("REGISTRATION ERROR:", error);
     try {
       const orphanedUser = await prisma.user.findUnique({ where: { email } });

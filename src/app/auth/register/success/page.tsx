@@ -18,11 +18,11 @@ export default function RegistrationSuccessPage() {
         </CardHeader>
         <CardContent className="text-center">
           <p className="mb-4">
-            We've sent a verification link to your email address. Please verify your email to activate your account.
+            We&apos;ve sent a verification link to your email address. Please verify your email to activate your account.
           </p>
           <p className="text-sm text-muted-foreground">
             Once verified, your registration will be reviewed by our admin team.
-            You'll receive a notification when your account is approved.
+            You&apos;ll receive a notification when your account is approved.
           </p>
         </CardContent>
         <CardFooter className="flex justify-center">

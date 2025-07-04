@@ -20,8 +20,6 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
 // --- Password requirements configuration ---
 const PASSWORD_REQUIREMENTS = [
   { id: "length", text: "8+ characters", test: (p: string) => p.length >= 8 },
@@ -107,7 +105,7 @@ export function AccountSetupStep({ form, showValidationErrors = false }: Account
   
   // Clear errors when component mounts
   useEffect(() => {
-    // Only clear errors on initial mount, not when showValidationErrors changes
+    // Only clear errors on initial mount
     if (!showValidationErrors) {
       form.clearErrors();
     }
@@ -115,7 +113,7 @@ export function AccountSetupStep({ form, showValidationErrors = false }: Account
     return () => {
       // Clean up if needed
     };
-  }, [form]);
+  }, [form, showValidationErrors]);
   
   return (
     <div className="space-y-8" onClick={(e) => e.stopPropagation()}>
@@ -239,8 +237,8 @@ const PasswordInput: FC<PasswordInputProps> = ({
             </button>
           </div>
           {description && <FormDescription>{description}</FormDescription>}
-          {/* Always show error messages when they exist, regardless of showValidationErrors */}
-          {form.formState.errors[name] && (
+          {/* Only show error messages when showValidationErrors is true or when the field has been touched */}
+          {(showValidationErrors || form.formState.touchedFields[name]) && form.formState.errors[name] && (
             <FormMessage>
               {form.formState.errors[name]?.message as string}
             </FormMessage>
@@ -330,7 +328,7 @@ const PasswordStrengthIndicator: FC<{ password: string }> = ({ password }) => {
 const SecurityTips: FC = () => (
   <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-2 shadow-sm">
     <p className="font-medium text-gray-700 mb-1">Security Tips:</p>
-    <p>• Don't reuse passwords from other sites</p>
+    <p>• Don&apos;t reuse passwords from other sites</p>
     <p>• Avoid using personal information</p>
     <p>• Change your password periodically</p>
     <p>• Consider using a password manager</p>
