@@ -1,261 +1,168 @@
 "use server";
+
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { User } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
-import {
-  completeRegistrationSchema,
-  type CompleteRegistrationFormData,
-} from "@/components/auth/schemas/registration-schema";
-import {
-  UserRole,
-  UserStatus,
-  ProviderStatus,
-  DocumentType,
-} from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 import { supabase } from "@/lib/supabase";
+import { providerRegisterSchema } from "@/components/auth/schemas/provider-register-schema";
+
+export type FormState = {
+  success: boolean;
+  message: string;
+};
 
 export async function registerProviderAction(
-  data: CompleteRegistrationFormData
-) {
-  const validationResult = completeRegistrationSchema.safeParse(data);
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  // 1. Validate data
+  const rawData = Object.fromEntries(formData.entries());
+  const dataToValidate = {
+    ...rawData,
+    services: JSON.parse((formData.get("services") as string) || "[]"),
+    operatingSchedule: JSON.parse(
+      (formData.get("operatingSchedule") as string) || "[]"
+    ),
+    documentPhoto: formData.get("documentPhoto"),
+    bannerPhoto: formData.get("bannerPhoto"),
+    latitude: rawData.latitude ? Number(rawData.latitude) : undefined,
+    longitude: rawData.longitude ? Number(rawData.longitude) : undefined,
+  };
+
+  const validationResult = providerRegisterSchema.safeParse(dataToValidate);
   if (!validationResult.success) {
-    return { error: "Invalid form data. Please review all steps." };
+    return {
+      success: false,
+      message: validationResult.error.errors[0]?.message || "Invalid data.",
+    };
   }
 
   const {
     email,
-    businessEmail,
+    password,
     firstName,
     lastName,
-    password,
-    validIdType,
-    idImage,
-    businessName,
-    businessPhone,
-    businessAddress,
-    businessCity,
-    businessProvince,
-    businessZipCode,
-    businessImage,
-    permitImageUrl,
-    permitNumber,
-    licenseNumber,
-    services,
-    operatingDays,
-    openTime,
-    closeTime,
-    providerType,
-    latitude,
-    longitude,
+    phone,
+    documentPhoto,
+    bannerPhoto,
+    ...providerData
   } = validationResult.data;
+  const fullName = `${firstName} ${lastName}`;
 
-  // Check if either email already exists in the database.
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true },
-  });
-
-  if (existingUser) {
-    return {
-      error:
-        "This personal email is already registered. Please use another email account.",
-      field: "email",
-    };
-  }
-
-  const existingProvider = await prisma.healthProvider.findUnique({
-    where: { businessEmail },
-    select: { id: true },
-  });
-
-  if (existingProvider) {
-    return {
-      error:
-        "This business email is already registered. Please use another business email.",
-      field: "businessEmail",
-    };
-  }
+  // Variables for cleanup logic
+  let createdUser: User | null = null;
+  const uploadedFilePaths: string[] = [];
 
   try {
+    // 2. Create user with better-auth
     await auth.api.signUpEmail({
       headers: await headers(),
       body: {
+        name: fullName,
         email,
-        name: `${firstName} ${lastName}`,
         password,
-        role: UserRole.HEALTH_PROVIDER,
-        status: UserStatus.PENDING_VERIFICATION,
+        role: "HEALTH_PROVIDER",
+        status: "PENDING_APPROVAL",
       },
     });
 
-    const newUser = await prisma.user.findUniqueOrThrow({
-      where: { email },
-      select: { id: true },
-    });
+    createdUser = await prisma.user.findUniqueOrThrow({ where: { email } });
 
-    // Initialize variables to store uploaded file URLs
-    let businessImageUrl = null;
-    let idImageUrl = null;
-    let permitImageUrl_uploaded = null;
+    // 3. Upload files to Supabase
+    const docFile = documentPhoto as File;
+    const docPath = `business-docu/${createdUser.id}-${docFile.name}`;
+    const { error: docError } = await supabase.storage
+      .from("provider-documents")
+      .upload(docPath, docFile);
+    if (docError)
+      throw new Error(`Document Upload Failed: ${docError.message}`);
+    uploadedFilePaths.push(docPath);
 
-    // Upload ID image to Supabase if provided
-    if (idImage) {
-      const { data: idData, error: idError } = await supabase.storage
-        .from("provider-documents/id-images")
-        .upload(`${newUser.id}-id-${Date.now()}`, idImage, {
-          upsert: true,
-        });
+    const bannerFile = bannerPhoto as File;
+    const bannerPath = `cover-photo/${createdUser.id}-${bannerFile.name}`;
+    const { error: bannerError } = await supabase.storage
+      .from("provider-documents")
+      .upload(bannerPath, bannerFile);
+    if (bannerError)
+      throw new Error(`Cover Photo Upload Failed: ${bannerError.message}`);
+    uploadedFilePaths.push(bannerPath);
 
-      if (idError) {
-        console.error("ID IMAGE UPLOAD ERROR:", idError);
-      } else {
-        // Get the public URL for the uploaded file
-        const { data: idPublicUrl } = supabase.storage
-          .from("provider-documents/id-images")
-          .getPublicUrl(idData.path);
-        
-        idImageUrl = idPublicUrl.publicUrl;
-      }
-    }
+    const {
+      data: { publicUrl: documentPublicUrl },
+    } = supabase.storage.from("provider-documents").getPublicUrl(docPath);
+    const {
+      data: { publicUrl: bannerPublicUrl },
+    } = supabase.storage.from("cover-photo").getPublicUrl(bannerPath);
 
-    // Upload business permit image to Supabase if provided
-    if (permitImageUrl) {
-      const { data: permitData, error: permitError } = await supabase.storage
-        .from("provider-documents/permit-images")
-        .upload(`${newUser.id}-permit-${Date.now()}`, permitImageUrl, {
-          upsert: true,
-        });
+    if (!documentPublicUrl || !bannerPublicUrl)
+      throw new Error("Could not get public URLs for files.");
 
-      if (permitError) {
-        console.error("PERMIT IMAGE UPLOAD ERROR:", permitError);
-      } else {
-        // Get the public URL for the uploaded file
-        const { data: permitPublicUrl } = supabase.storage
-          .from("provider-documents/permit-images")
-          .getPublicUrl(permitData.path);
-        
-        permitImageUrl_uploaded = permitPublicUrl.publicUrl;
-      }
-    }
-
-    // Upload business image to Supabase if provided
-    if (businessImage) {
-      const { data: imageData, error: imageError } = await supabase.storage
-        .from("provider-documents/business-images")
-        .upload(`${newUser.id}-business-${Date.now()}`, businessImage, {
-          upsert: true,
-        });
-
-      if (imageError) {
-        console.error("BUSINESS IMAGE UPLOAD ERROR:", imageError);
-      } else {
-        // Get the public URL for the uploaded file
-        const { data: imagePublicUrl } = supabase.storage
-          .from("provider-documents/business-images")
-          .getPublicUrl(imageData.path);
-        
-        businessImageUrl = imagePublicUrl.publicUrl;
-      }
-    }
-
-    // Create provider in database
+    // 4. Create all related DB records in a transaction
     await prisma.$transaction(async (tx) => {
+      await tx.user.update({ where: { id: createdUser!.id }, data: { phone } });
       const newProvider = await tx.healthProvider.create({
         data: {
-          userId: newUser.id,
-          providerType,
-          businessName,
-          businessPhone,
-          businessEmail,
-          address: businessAddress,
-          city: businessCity,
-          province: businessProvince,
-          zipCode: businessZipCode,
-          status: ProviderStatus.PENDING,
-          images: businessImageUrl ? [businessImageUrl] : [],
-          latitude: latitude ? parseFloat(latitude) : 0,
-          longitude: longitude ? parseFloat(longitude) : 0,
+          userId: createdUser!.id,
+          businessName: providerData.businessName,
+          providerType: providerData.providerType,
+          businessPhone: providerData.businessPhone,
+          businessEmail: providerData.businessEmail,
+          address: providerData.address,
+          city: providerData.city,
+          province: providerData.province,
+          zipCode: providerData.zipCode,
+          latitude: providerData.latitude,
+          longitude: providerData.longitude,
+          status: "PENDING",
+          images: [bannerPublicUrl],
         },
       });
-
-      const documentsToCreate = [];
-      if (idImageUrl && validIdType) {
-        documentsToCreate.push({
-          userId: newUser.id,
-          imageUrl: idImageUrl,
-          type: validIdType
-            .toUpperCase()
-            .replace(/'/g, "")
-            .replace(/ /g, "_") as DocumentType,
-        });
-      }
-
-      // Make sure permitImageUrl exists in the data
-      if (permitImageUrl_uploaded && (permitNumber || licenseNumber)) {
-        documentsToCreate.push({
+      await tx.document.create({
+        data: {
           providerId: newProvider.id,
-          imageUrl: permitImageUrl_uploaded,
-          identifier: `Permit: ${permitNumber}, License: ${
-            licenseNumber || "N/A"
-          }`,
-          type: DocumentType.BUSINESS_PERMIT,
-        });
-      }
-
-      if (documentsToCreate.length > 0) {
-        await tx.document.createMany({ data: documentsToCreate });
-      }
-
-      if (services?.length) {
-        await tx.service.createMany({
-          data: services.map((s) => ({
-            name: s.serviceName,
-            description: s.description,
-            priceRange: s.priceRange || null,
-            providerId: newProvider.id,
-          })),
-        });
-      }
-
-      const dayMap: { [key: string]: number } = {
-        Sunday: 0,
-        Monday: 1,
-        Tuesday: 2,
-        Wednesday: 3,
-        Thursday: 4,
-        Friday: 5,
-        Saturday: 6,
-      };
-      if (operatingDays?.length) {
-        await tx.operatingSchedule.createMany({
-          data: operatingDays.map((day) => ({
-            providerId: newProvider.id,
-            dayOfWeek: dayMap[day],
-            openTime,
-            closeTime,
-            isOpen: true,
-          })),
-        });
-      }
+          type: "BUSINESS_PERMIT",
+          identifier: providerData.permitNumber,
+          imageUrl: documentPublicUrl,
+          status: "PENDING",
+        },
+      });
+      await tx.service.createMany({
+        data: providerData.services.map((service: any) => ({
+          providerId: newProvider.id,
+          ...service,
+        })),
+      });
+      await tx.operatingSchedule.createMany({
+        data: providerData.operatingSchedule.map((schedule: any) => ({
+          providerId: newProvider.id,
+          ...schedule,
+        })),
+      });
     });
 
     return {
-      success:
-        "Registration successful! Please check your email for verification.",
+      success: true,
+      message: "Registration successful! Your profile is pending review.",
     };
-  } catch (error: unknown) {
-    console.error("REGISTRATION ERROR:", error);
-    try {
-      const orphanedUser = await prisma.user.findUnique({ where: { email } });
-      if (orphanedUser)
-        await prisma.user.delete({ where: { id: orphanedUser.id } });
-    } catch (rollbackError) {
-      console.error("ROLLBACK FAILED:", rollbackError);
-    }
+  } catch (error) {
+    console.error("REGISTRATION FAILURE:", error);
 
-    return {
-      error:
-        "An unexpected error occurred during registration. Please try again.",
-    };
+    // --- CLEANUP ON FAILURE ---
+    if (uploadedFilePaths.length > 0) {
+      const { data, error: removeError } = await supabase.storage
+        .from("provider-documents")
+        .remove(uploadedFilePaths);
+      if (removeError)
+        console.error("Failed to cleanup Supabase files:", removeError.message);
+    }
+    if (createdUser) {
+      await prisma.user
+        .delete({ where: { id: createdUser.id } })
+        .catch((e) => console.error("Failed to delete orphaned user", e));
+    }
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred.";
+    return { success: false, message: errorMessage };
   }
 }

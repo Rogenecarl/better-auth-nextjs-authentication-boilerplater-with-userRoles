@@ -1,5 +1,5 @@
-import { MultiStepRegistrationForm } from "@/components/auth/multi-step-registration-form";
+import { ProviderRegisterForm } from "@/components/auth/provider-register-form";
 
 export default function HealthProviderRegisterPage() {
-  return <MultiStepRegistrationForm />;
+  return <ProviderRegisterForm />;
 }
