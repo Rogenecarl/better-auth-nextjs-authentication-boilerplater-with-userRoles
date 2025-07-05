@@ -131,7 +131,7 @@ export function ProviderRegisterForm() {
       
       {/* Main Content */}
       <div className="flex-1 p-4 lg:p-8 lg:pl-10">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex justify-end mb-4 lg:mb-6">
             <Link 
               href="/auth/login" 

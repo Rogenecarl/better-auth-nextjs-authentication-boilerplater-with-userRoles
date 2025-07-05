@@ -85,7 +85,7 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
     <KeyRound key="key" className="h-4 w-4" />
   ];
 
-  return (
+    return (
     <div className="w-full h-full bg-white text-gray-800 flex flex-col shadow-lg">
       {/* Fixed Header */}
       <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-b-xl">
@@ -122,8 +122,8 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
             const isCompleted = step.id < currentStep;
             
             return (
-              <div 
-                key={step.id} 
+            <div
+              key={step.id}
                 className={cn(
                   "flex items-start gap-3 p-3 relative rounded-xl transition-all",
                   isActive ? "bg-blue-50 border border-blue-100 shadow-sm" : 
@@ -158,16 +158,16 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
                     "font-medium",
                     isActive ? "text-blue-700" : isCompleted ? "text-gray-800" : "text-gray-600"
                   )}>
-                    {step.title}
+                  {step.title}
                   </h3>
                   <p className={cn(
                     "text-xs",
                     isActive ? "text-blue-600" : "text-gray-500"
                   )}>
-                    {step.description}
-                  </p>
-                </div>
+                  {step.description}
+                </p>
               </div>
+            </div>
             );
           })}
         </div>
@@ -178,10 +178,10 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
         <div className="flex items-center gap-2 text-sm">
           <Shield className="w-4 h-4" />
           <span className="font-medium">Secure Registration</span>
-        </div>
+            </div>
         <p className="text-xs opacity-90 mt-1">Your information is encrypted and protected</p>
       </div>
-      
+
       {/* Mobile Steps - Horizontal Scrolling */}
       <div className="lg:hidden block p-4 border-t border-gray-100 bg-white overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="flex gap-3 min-w-max">
@@ -191,14 +191,14 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
             
             return (
               <div 
-                key={step.id} 
-                className={cn(
+              key={step.id}
+              className={cn(
                   "flex flex-col items-center w-16",
                   isActive ? "opacity-100" : "opacity-70"
-                )}
-              >
-                <div 
-                  className={cn(
+              )}
+            >
+              <div
+                className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-full mb-1 shadow-sm",
                     isActive ? "bg-blue-600 text-white" : 
                     isCompleted ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"

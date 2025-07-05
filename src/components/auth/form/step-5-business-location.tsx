@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { MapPin } from "lucide-react";
+import { MapPin, FileText, Navigation } from "lucide-react";
 import LocationPicker, { LocationValue } from "@/components/LocationPicker";
 
 interface Props {
@@ -55,43 +55,55 @@ export function Step5BusinessLocation({ form }: Props) {
 
   return (
     <div className="space-y-6 animate-in fade-in-50">
-      <h2 className="text-xl font-semibold">Business Location</h2>
+      <div className="flex items-center gap-2 mb-6">
+        <MapPin className="w-5 h-5 text-blue-500" />
+        <h2 className="text-xl font-semibold text-gray-800">Business Location</h2>
+      </div>
+      <p className="text-sm text-gray-500 mt-1">
+        Set your business location on the map for customers to find you
+      </p>
 
-      <Alert>
-        <MapPin className="h-4 w-4" />
-        <AlertTitle>Set Your Location</AlertTitle>
-        <AlertDescription>
-          Click a precise point on the map to set your coordinates, or enter
-          them manually.
-        </AlertDescription>
-      </Alert>
-
-      <div className="h-[400px] w-full">
-        <LocationPicker
-          value={currentLocation}
-          onChange={handleLocationChange}
-        />
+      <div className="mt-5 bg-blue-50 border border-blue-100 rounded-lg p-4 mb-5">
+        <div className="flex gap-3">
+          <Navigation className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-blue-800 text-sm">Map Location</h3>
+            <p className="text-sm text-blue-700 mt-1">
+              Click a precise point on the map to set your coordinates, or enter them manually
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+      <div className="mb-5">
+        <div className="h-[400px] w-full rounded-lg overflow-hidden shadow-sm border border-gray-200">
+          <LocationPicker
+            value={currentLocation}
+            onChange={handleLocationChange}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
         <FormField
           control={form.control}
           name="latitude"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="latitude" className="text-sm font-medium text-gray-700">Latitude</FormLabel>
+            <FormItem className="space-y-0 flex-1">
+              <FormLabel htmlFor="latitude" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                Latitude
+              </FormLabel>
               <FormControl>
                 <Input
                   id="latitude"
                   type="number"
-                  // `step="any"` is the standard way to allow floating-point numbers.
                   step="any"
                   placeholder="e.g., 6.74468"
                   {...field}
-                  // This ensures the input value is always a string to prevent React warnings.
                   value={field.value ?? ""}
-                  // Let the zodResolver handle coercion from string to number.
                   onChange={field.onChange}
+                  className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
               </FormControl>
               <FormMessage />
@@ -102,8 +114,11 @@ export function Step5BusinessLocation({ form }: Props) {
           control={form.control}
           name="longitude"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="longitude" className="text-sm font-medium text-gray-700">Longitude</FormLabel>
+            <FormItem className="space-y-0 flex-1">
+              <FormLabel htmlFor="longitude" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                Longitude
+              </FormLabel>
               <FormControl>
                 <Input
                   id="longitude"
@@ -113,6 +128,7 @@ export function Step5BusinessLocation({ form }: Props) {
                   {...field}
                   value={field.value ?? ""}
                   onChange={field.onChange}
+                  className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
               </FormControl>
               <FormMessage />

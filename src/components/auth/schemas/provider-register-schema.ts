@@ -45,6 +45,15 @@ export const step2Schema = z.object({
   zipCode: z.string().optional(),
 });
 
+// --- Service Schema for Modal Form ---
+export const serviceFormSchema = z.object({
+  name: z.string().min(2, "Service name is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  priceRange: z.string().min(1, "Price range is required"),
+});
+
+export type ServiceFormValues = z.infer<typeof serviceFormSchema>;
+
 // --- Step 3: Services & Schedule ---
 const timeStringSchema = z
   .string()
@@ -52,13 +61,7 @@ const timeStringSchema = z
 
 export const step3Schema = z.object({
   services: z
-    .array(
-      z.object({
-        name: z.string().min(2, "Service name is required"),
-        description: z.string().optional(),
-        priceRange: z.string().optional(),
-      })
-    )
+    .array(serviceFormSchema)
     .min(1, "Please add at least one service"),
   operatingSchedule: z
     .array(

@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Image } from "lucide-react";
+import { Image, Upload } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<ProviderRegisterData>;
@@ -25,69 +25,69 @@ export function Step5BusinessCoverPhoto({ form }: Props) {
         </h2>
       </div>
       <p className="text-sm text-gray-500 mt-1">
-        Upload a banner image for your provider profile page. This will be the
-        first thing users see.
+        Upload a banner image for your provider profile page
       </p>
 
-      <div className="grid gap-4 mt-6">
-        <FormField
-          control={form.control}
-          name="bannerPhoto"
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormLabel
-                htmlFor="bannerPhoto"
-                className="text-sm font-medium text-gray-700"
-              >
-                Banner Photo
-              </FormLabel>
-              <FormControl>
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg
-                        className="w-10 h-10 mb-4 text-gray-500"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 16"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                        />
-                      </svg>
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span>{" "}
-                        or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        .jpg, .jpeg, .png, .webp (MAX. 10MB)
-                      </p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        Recommended size: 1920x480 pixels
-                      </p>
-                    </div>
-                    <Input
-                      id="bannerPhoto"
-                      type="file"
-                      accept=".jpg, .jpeg, .png, .webp"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        field.onChange(file);
-                      }}
-                    />
-                  </label>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div className="border-blue-100 rounded-lg">
+        <div className="flex gap-3 mb-5 bg-blue-50 border border-blue-100 rounded-lg p-3">
+          <Image className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-blue-800 text-sm">Profile Banner</h3>
+            <p className="text-sm text-blue-700 mt-1">
+              This will be the first thing users see when they visit your profile
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="bannerPhoto"
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormLabel
+                  htmlFor="bannerPhoto"
+                  className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4 text-gray-500" />
+                  Banner Photo
+                </FormLabel>
+                <FormControl>
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-blue-50/30 hover:bg-blue-50/50 border-blue-200">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <div className="w-12 h-12 mb-3 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Upload className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <p className="mb-2 text-sm font-medium text-blue-700">
+                          <span className="font-semibold">Click to upload</span>{" "}
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-blue-600">
+                          .jpg, .jpeg, .png, .webp (MAX. 10MB)
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                          Recommended size: 1920x480 pixels
+                        </p>
+                      </div>
+                      <Input
+                        id="bannerPhoto"
+                        type="file"
+                        accept=".jpg, .jpeg, .png, .webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          field.onChange(file);
+                        }}
+                      />
+                    </label>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
     </div>
   );
