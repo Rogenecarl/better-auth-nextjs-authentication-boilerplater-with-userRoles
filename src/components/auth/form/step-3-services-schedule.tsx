@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import {
   ProviderRegisterData,
@@ -79,6 +80,18 @@ export function Step3ServicesSchedule({ form }: Props) {
     name: "operatingSchedule",
   });
 
+  // Filter out empty services (services without a name)
+  const validServices = fields.filter(field => field.name && field.name.trim() !== "");
+
+  // Ensure we have at least one valid service in the form data
+  useEffect(() => {
+    // If there are no valid services but there are empty placeholders, remove them
+    if (validServices.length === 0 && fields.length > 0) {
+      // This will ensure the form validation works correctly
+      form.setValue("services", [], { shouldValidate: true });
+    }
+  }, [validServices.length, fields.length, form]);
+
   const handleOpenDialog = (index?: number) => {
     if (index !== undefined) {
       // Edit existing service
@@ -146,7 +159,7 @@ export function Step3ServicesSchedule({ form }: Props) {
           </div>
 
           <div className="space-y-3">
-            {fields.length === 0 ? (
+            {validServices.length === 0 ? (
               <div className="text-center p-6 border border-dashed border-blue-200 rounded-lg bg-blue-50/30">
                 <Stethoscope className="w-8 h-8 text-blue-300 mx-auto mb-2" />
                 <p className="text-blue-700 font-medium">
@@ -155,55 +168,61 @@ export function Step3ServicesSchedule({ form }: Props) {
                 <p className="text-sm text-blue-600 mt-1">
                   Click the button below to add your first service
                 </p>
+                <p className="text-xs text-red-500 mt-3 font-medium">
+                  You must add at least one service to continue
+                </p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex items-center justify-between p-3 border rounded-lg bg-white shadow-sm hover:shadow transition-shadow"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Stethoscope className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-800">
-                          {field.name}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-blue-50 text-blue-700 border-blue-200"
-                          >
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            {field.priceRange}
-                          </Badge>
+                {validServices.map((field, index) => {
+                  const originalIndex = fields.findIndex(f => f.id === field.id);
+                  return (
+                    <div
+                      key={field.id}
+                      className="flex items-center justify-between p-3 border rounded-lg bg-white shadow-sm hover:shadow transition-shadow"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Stethoscope className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-800">
+                            {field.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                            >
+                              <DollarSign className="w-3 h-3 mr-1" />
+                              {field.priceRange || "No price set"}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                          onClick={() => handleOpenDialog(originalIndex)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => remove(originalIndex)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                        onClick={() => handleOpenDialog(index)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

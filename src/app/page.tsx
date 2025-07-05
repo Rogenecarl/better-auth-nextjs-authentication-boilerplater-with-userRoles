@@ -11,7 +11,8 @@ export default async function Home() {
   });
 
   if (session?.user?.role === "ADMIN") redirect("/admin/dashboard");
-  if (session?.user?.role === "HEALTH_PROVIDER") redirect("/healthproviders/dashboard");
+  if (session?.user?.role === "HEALTH_PROVIDER")
+    redirect("/healthproviders/dashboard");
 
   return (
     <div className="min-h-dvh flex flex-col">

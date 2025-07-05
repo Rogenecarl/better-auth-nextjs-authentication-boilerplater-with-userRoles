@@ -13,9 +13,10 @@ import { KeyRound, Lock, Shield } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<ProviderRegisterData>;
+  onSubmit: () => void;
 }
 
-export function Step6AccountSetup({ form }: Props) {
+export function Step6AccountSetup({ form, onSubmit }: Props) {
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <div className="flex items-center gap-2 mb-6">
@@ -56,11 +57,11 @@ export function Step6AccountSetup({ form }: Props) {
                   Password
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <Input 
                     id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    {...field}
+                    type="password" 
+                    placeholder="••••••••" 
+                    {...field} 
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormControl>
@@ -81,11 +82,11 @@ export function Step6AccountSetup({ form }: Props) {
                   Confirm Password
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <Input 
                     id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    {...field}
+                    type="password" 
+                    placeholder="••••••••" 
+                    {...field} 
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormControl>
@@ -110,7 +111,6 @@ export function Step6AccountSetup({ form }: Props) {
               </ul>
             </div>
           </div>
-
         </div>
       </div>
     </div>
