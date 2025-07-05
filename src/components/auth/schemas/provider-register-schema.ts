@@ -55,9 +55,6 @@ export const serviceFormSchema = z.object({
 export type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
 // --- Step 3: Services & Schedule ---
-const timeStringSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)");
 
 export const step3Schema = z.object({
   services: z
@@ -68,11 +65,29 @@ export const step3Schema = z.object({
       z.object({
         dayOfWeek: z.number().min(0).max(6),
         isOpen: z.boolean().default(true),
-        openTime: timeStringSchema,
-        closeTime: timeStringSchema,
-      })
+        openTime: z.string().refine((val) => {
+          if (!val) return true; // Allow empty if closed
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(val);
+        }, "Invalid time format (HH:MM)"),
+        closeTime: z.string().refine((val) => {
+          if (!val) return true; // Allow empty if closed
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(val);
+        }, "Invalid time format (HH:MM)"),
+      }).refine(
+        (data) => {
+          // If isOpen is false, we don't care about the times
+          if (!data.isOpen) return true;
+          // If open, both times must be valid
+          return data.openTime && data.closeTime;
+        },
+        { message: "Operating hours are required when open" }
+      )
     )
-    .length(7, "Schedule must be set for all 7 days"),
+    .length(7, "Schedule must be set for all 7 days")
+    .refine(
+      (schedule) => schedule.some(day => day.isOpen),
+      { message: "At least one day must be open" }
+    ),
 });
 
 // --- Step 4: Business Documents ---
@@ -132,6 +147,10 @@ export const providerRegisterSchema = z
     ...step5Schema.shape,
     ...step6Schema.shape,
     ...step7BaseSchema.shape,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
 
 export type ProviderRegisterData = z.infer<typeof providerRegisterSchema>;

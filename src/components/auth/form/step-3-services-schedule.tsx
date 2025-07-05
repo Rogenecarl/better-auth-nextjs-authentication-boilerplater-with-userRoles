@@ -248,8 +248,20 @@ export function Step3ServicesSchedule({ form }: Props) {
               <p className="text-sm text-blue-700 mt-1">
                 Set your business hours for each day of the week
               </p>
+              <p className="text-sm text-red-600 mt-1 font-medium">
+                * At least one day must be open with operating hours
+              </p>
             </div>
           </div>
+          
+          {/* Show validation error if all days are closed */}
+          {form.formState.errors.operatingSchedule?.message && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+              <p className="text-sm text-red-600">
+                {form.formState.errors.operatingSchedule.message}
+              </p>
+            </div>
+          )}
 
           <div className="space-y-3">
             {scheduleFields.map((field, index) => {
@@ -268,7 +280,19 @@ export function Step3ServicesSchedule({ form }: Props) {
                         <FormControl>
                           <Switch
                             checked={field.value}
-                            onCheckedChange={field.onChange}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (!checked) {
+                                // Clear times when closed
+                                form.setValue(`operatingSchedule.${index}.openTime`, "", { shouldValidate: true });
+                                form.setValue(`operatingSchedule.${index}.closeTime`, "", { shouldValidate: true });
+                                // Clear any errors
+                                form.clearErrors([
+                                  `operatingSchedule.${index}.openTime`,
+                                  `operatingSchedule.${index}.closeTime`
+                                ]);
+                              }
+                            }}
                             id={`isOpen-${index}`}
                           />
                         </FormControl>
@@ -293,9 +317,15 @@ export function Step3ServicesSchedule({ form }: Props) {
                                 id={`openTime-${index}`}
                                 type="time"
                                 {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  // Clear any errors when time is set
+                                  form.clearErrors(`operatingSchedule.${index}.openTime`);
+                                }}
                                 className="rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 w-32 h-10"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -310,9 +340,15 @@ export function Step3ServicesSchedule({ form }: Props) {
                                 id={`closeTime-${index}`}
                                 type="time"
                                 {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  // Clear any errors when time is set
+                                  form.clearErrors(`operatingSchedule.${index}.closeTime`);
+                                }}
                                 className="rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 w-32 h-10"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />

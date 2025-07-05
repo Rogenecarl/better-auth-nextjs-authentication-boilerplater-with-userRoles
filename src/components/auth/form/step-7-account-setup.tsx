@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { KeyRound, Lock, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Props {
   form: UseFormReturn<ProviderRegisterData>;
@@ -17,6 +18,20 @@ interface Props {
 }
 
 export function Step6AccountSetup({ form, onSubmit }: Props) {
+
+  const [showValidation, setShowValidation] = useState(false);
+
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      const currentErrors = form.formState.errors;
+      const hasErrors = Object.keys(currentErrors).length > 0;
+      setShowValidation(hasErrors && form.formState.isDirty);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+  // Watch password field to validate confirm password in real-time
+  const password = form.watch("password");
+  
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <div className="flex items-center gap-2 mb-6">
@@ -64,8 +79,9 @@ export function Step6AccountSetup({ form, onSubmit }: Props) {
                     {...field} 
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
+                  
                 </FormControl>
-                <FormMessage />
+                {showValidation && <FormMessage />}
               </FormItem>
             )}
           />
@@ -86,11 +102,19 @@ export function Step6AccountSetup({ form, onSubmit }: Props) {
                     id="confirmPassword"
                     type="password" 
                     placeholder="••••••••" 
-                    {...field} 
+                    {...field}
+                    onBlur={() => {
+                      if (field.value && field.value !== password) {
+                        form.setError("confirmPassword", {
+                          type: "manual",
+                          message: "Passwords do not match"
+                        });
+                      }
+                    }}
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormControl>
-                <FormMessage />
+                {showValidation && <FormMessage />}
               </FormItem>
             )}
           />

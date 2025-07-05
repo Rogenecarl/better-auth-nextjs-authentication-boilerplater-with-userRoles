@@ -124,6 +124,9 @@ export function ProviderRegisterForm() {
 
   useEffect(() => {
     if (formState.message) {
+      // Dismiss the loading toast first
+      toast.dismiss("submit-toast");
+      
       if (formState.success) {
         toast.success(formState.message);
         router.push("/auth/login");
@@ -136,7 +139,11 @@ export function ProviderRegisterForm() {
   const handleNextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
     const isValid = await trigger(fieldsToValidate);
-    if (isValid) setCurrentStep((prev) => prev + 1);
+    if (isValid) {
+      // Reset form state before moving to next step
+      form.clearErrors();
+      setCurrentStep((prev) => prev + 1);
+    }
   };
 
   const handlePrevStep = () => setCurrentStep((prev) => prev - 1);
@@ -166,7 +173,15 @@ export function ProviderRegisterForm() {
         formData.append(key, value as string | Blob);
       }
     });
-    startTransition(() => formAction(formData));
+    
+    toast.loading("Submitting your registration...", {
+      id: "submit-toast",
+      duration: Infinity
+    });
+    
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (

@@ -10,12 +10,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Image, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Props {
   form: UseFormReturn<ProviderRegisterData>;
 }
 
 export function Step5BusinessCoverPhoto({ form }: Props) {
+  const [showValidation, setShowValidation] = useState(false);
+
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      const currentErrors = form.formState.errors;
+      const hasErrors = Object.keys(currentErrors).length > 0;
+      setShowValidation(hasErrors && form.formState.isDirty);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <div className="flex items-center gap-2 mb-6">
@@ -78,12 +90,13 @@ export function Step5BusinessCoverPhoto({ form }: Props) {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           field.onChange(file);
+                          if (!file) setShowValidation(true);
                         }}
                       />
                     </label>
                   </div>
                 </FormControl>
-                <FormMessage />
+                {showValidation && <FormMessage />}
               </FormItem>
             )}
           />

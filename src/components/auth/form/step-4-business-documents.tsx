@@ -10,12 +10,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FileText, Shield, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Props {
   form: UseFormReturn<ProviderRegisterData>;
 }
 
 export function Step4BusinessDocuments({ form }: Props) {
+  // Track if the next button has been clicked
+  const [showValidation, setShowValidation] = useState(false);
+
+  // Listen for next button clicks via form state changes
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      const currentErrors = form.formState.errors;
+      const hasErrors = Object.keys(currentErrors).length > 0;
+      // Only show validation if there are errors and fields were touched
+      setShowValidation(hasErrors && form.formState.isDirty);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <div className="flex items-center gap-2 mb-6">
@@ -53,10 +68,14 @@ export function Step4BusinessDocuments({ form }: Props) {
                     type="text"
                     placeholder="e.g., 2024-12345" 
                     {...field} 
+                    onBlur={(e) => {
+                      field.onBlur();
+                      if (!e.target.value) setShowValidation(true);
+                    }}
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormControl>
-                <FormMessage />
+                {(showValidation || field.value) && <FormMessage />}
               </FormItem>
             )}
           />
@@ -78,7 +97,7 @@ export function Step4BusinessDocuments({ form }: Props) {
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </FormControl>
-                <FormMessage />
+                {showValidation && <FormMessage />}
               </FormItem>
             )}
           />
@@ -111,14 +130,17 @@ export function Step4BusinessDocuments({ form }: Props) {
                       accept=".jpg, .jpeg, .png, .pdf"
                       className="hidden"
                       onChange={(e) => {
+                        e.preventDefault();
                         const file = e.target.files?.[0];
                         field.onChange(file);
+                        // the schema validation is onTouched, so we need to set the showValidation to true if the file is not selected
                       }}
                     />
                   </label>
                 </div>
               </FormControl>
-              <FormMessage />
+              {/* show validation if the field is touched or the file is selected */}
+              {(showValidation || field.value) && <FormMessage />}
             </FormItem>
           )}
         />
