@@ -5,6 +5,7 @@ import { useForm, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 
 import {
   providerRegisterSchema,
@@ -16,10 +17,10 @@ import {
 } from "@/actions/register-provider.action";
 import { getFieldsForStep } from "@/components/auth/hooks/form-step-config";
 
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
+import { StepIndicator } from "@/components/auth/ui/step-indicator";
 import { Step1PersonalInfo } from "@/components/auth/form/step-1-personal-info";
 import { Step2BusinessInfo } from "@/components/auth/form/step-2-business-info";
 import { Step3ServicesSchedule } from "@/components/auth/form/step-3-services-schedule";
@@ -120,58 +121,85 @@ export function ProviderRegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-6 sm:p-8 border rounded-lg shadow-sm bg-card">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-center">
-          Health Provider Registration
-        </h1>
-        <p className="text-muted-foreground text-sm text-center">
-          Step {currentStep} of {TOTAL_STEPS}
-        </p>
-        <Progress value={(currentStep / TOTAL_STEPS) * 100} className="mt-4" />
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50">
+      {/* Sidebar - Fixed on desktop */}
+      <div className="lg:w-[320px] w-full">
+        <div className="lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:w-[320px] lg:h-screen">
+          <StepIndicator currentStep={currentStep} />
+        </div>
       </div>
-
-      <Form {...form}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit((data: FieldValues) =>
-              processForm(data as ProviderRegisterData)
-            )(e);
-          }}
-          className="space-y-8"
-        >
-          <div className="min-h-[350px]">
-            {currentStep === 1 && <Step1PersonalInfo form={form} />}
-            {currentStep === 2 && <Step2BusinessInfo form={form} />}
-            {currentStep === 3 && <Step3ServicesSchedule form={form} />}
-            {currentStep === 4 && <Step4BusinessDocuments form={form} />}
-            {currentStep === 5 && <Step5BusinessLocation form={form} />}
-            {currentStep === 6 && <Step5BusinessCoverPhoto form={form} />}
-            {currentStep === 7 && <Step6AccountSetup form={form} />}
-          </div>
-
-          <div className="flex justify-between items-center pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePrevStep}
-              disabled={currentStep === 1 || isPending}
+      
+      {/* Main Content */}
+      <div className="flex-1 p-4 lg:p-8 lg:pl-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex justify-end mb-4 lg:mb-6">
+            <Link 
+              href="/auth/login" 
+              className="text-sm text-violet-600 hover:text-violet-800 font-medium"
             >
-              Previous
-            </Button>
-            {currentStep < TOTAL_STEPS ? (
-              <Button type="button" onClick={handleNextStep}>
-                Next
-              </Button>
-            ) : (
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Submitting..." : "Create Account"}
-              </Button>
-            )}
+              Already have an account? Login
+            </Link>
           </div>
-        </form>
-      </Form>
+          
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-8">
+            <Form {...form}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit((data: FieldValues) =>
+                    processForm(data as ProviderRegisterData)
+                  )(e);
+                }}
+                className="space-y-6 lg:space-y-8"
+              >
+                <div className="min-h-[350px]">
+                  {currentStep === 1 && <Step1PersonalInfo form={form} />}
+                  {currentStep === 2 && <Step2BusinessInfo form={form} />}
+                  {currentStep === 3 && <Step3ServicesSchedule form={form} />}
+                  {currentStep === 4 && <Step4BusinessDocuments form={form} />}
+                  {currentStep === 5 && <Step5BusinessLocation form={form} />}
+                  {currentStep === 6 && <Step5BusinessCoverPhoto form={form} />}
+                  {currentStep === 7 && <Step6AccountSetup form={form} />}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t mt-4 lg:mt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevStep}
+                    disabled={currentStep === 1 || isPending}
+                    className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500/20"
+                  >
+                    Previous
+                  </Button>
+                  
+                  <div className="text-xs sm:text-sm text-gray-500">
+                    Step {currentStep} of {TOTAL_STEPS}
+                  </div>
+                  
+                  {currentStep < TOTAL_STEPS ? (
+                    <Button 
+                      type="button" 
+                      onClick={handleNextStep}
+                      className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="submit" 
+                      disabled={isPending}
+                      className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      {isPending ? "Submitting..." : "Create Account"}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

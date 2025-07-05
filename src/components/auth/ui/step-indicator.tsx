@@ -1,254 +1,221 @@
 "use client";
 
-import React, { ReactNode } from "react";
-import { Check } from "lucide-react";
+import React from "react";
+import { 
+  User, 
+  Building2, 
+  FileText, 
+  Clock, 
+  MapPin, 
+  Image, 
+  KeyRound,
+  CheckCircle2,
+  Circle,
+  Clock3,
+  Shield,
+  LucideIcon
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Step } from "@/components/auth/hooks/use-multi-step-form";
 
 interface StepIndicatorProps {
-  steps: Step[];
   currentStep: number;
-  completedSteps: number[];
-  onStepClick: (step: number, e?: React.MouseEvent) => void;
-  canGoToStep: (step: number) => boolean;
-  layout?: "horizontal" | "vertical";
-  stepIcons?: ReactNode[];
 }
 
-export function StepIndicator({
-  steps,
-  currentStep,
-  completedSteps,
-  onStepClick,
-  canGoToStep,
-  layout = "horizontal",
-  stepIcons,
-}: StepIndicatorProps) {
-  if (layout === "vertical") {
-    return (
-      <div className="w-full">
-        <div className="flex flex-col items-start relative">
-          {/* Progress bar background - vertical */}
-          <div className="absolute top-0 left-5 w-[2px] h-full bg-gray-200 -translate-x-1/2 rounded-full" />
+type Step = {
+  id: number;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+};
 
-          {/* Active progress - vertical */}
-          <div
-            className="absolute top-0 left-5 w-[2px] bg-blue-500 -translate-x-1/2 rounded-full transition-all duration-300 ease-in-out"
-            style={{
-              height: `${Math.max(
-                ((currentStep - 1) / (steps.length - 1)) * 100,
-                0
-              )}%`,
-            }}
-          />
+export function StepIndicator({ currentStep }: StepIndicatorProps) {
+  const steps: Step[] = [
+    {
+      id: 1,
+      title: "Personal Information",
+      description: "Basic details and identity verification",
+      icon: <User className="h-5 w-5" />
+    },
+    {
+      id: 2,
+      title: "Business Information",
+      description: "Details about your healthcare business",
+      icon: <Building2 className="h-5 w-5" />
+    },
+    {
+      id: 3,
+      title: "Services Offered",
+      description: "Healthcare services and operating hours",
+      icon: <Clock className="h-5 w-5" />
+    },
+    {
+      id: 4,
+      title: "Verification Documents",
+      description: "Business permits and licenses",
+      icon: <FileText className="h-5 w-5" />
+    },
+    {
+      id: 5,
+      title: "Business Location",
+      description: "Map location of your business",
+      icon: <MapPin className="h-5 w-5" />
+    },
+    {
+      id: 6,
+      title: "Cover Photo",
+      description: "Banner image for your profile",
+      icon: <Image className="h-5 w-5" />
+    },
+    {
+      id: 7,
+      title: "Account Setup",
+      description: "Create your login credentials",
+      icon: <KeyRound className="h-5 w-5" />
+    }
+  ];
 
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`flex items-start mb-8 relative w-full ${
-                index === steps.length - 1 ? "" : "pb-6"
-              }`}
-            >
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (canGoToStep(step.id)) {
-                    onStepClick(step.id, e);
-                  }
-                }}
-                disabled={!canGoToStep(step.id)}
-                className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 z-10",
-                  {
-                    "bg-blue-500 text-white shadow-md": currentStep === step.id,
-                    "bg-green-500 text-white": completedSteps.includes(step.id),
-                    "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-500":
-                      currentStep !== step.id &&
-                      !completedSteps.includes(step.id) &&
-                      canGoToStep(step.id),
-                    "bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed":
-                      !canGoToStep(step.id),
-                  }
-                )}
-              >
-                {completedSteps.includes(step.id) ? (
-                  <Check className="w-5 h-5" />
-                ) : stepIcons && stepIcons[index] ? (
-                  stepIcons[index]
-                ) : (
-                  step.id
-                )}
-              </button>
-              <div className="ml-4">
-                <p
-                  className={cn("font-medium", {
-                    "text-blue-600": currentStep === step.id,
-                    "text-green-600": completedSteps.includes(step.id),
-                    "text-gray-900":
-                      currentStep !== step.id &&
-                      !completedSteps.includes(step.id),
-                  })}
-                >
-                  {step.title}
-                </p>
-                <p className="text-sm text-gray-500 mt-1 max-w-[90%]">
-                  {step.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Icons for mobile view
+  const mobileIcons = [
+    <User key="user" className="h-4 w-4" />,
+    <Building2 key="building" className="h-4 w-4" />,
+    <Clock key="clock" className="h-4 w-4" />,
+    <FileText key="file" className="h-4 w-4" />,
+    <MapPin key="map" className="h-4 w-4" />,
+    <Image key="image" className="h-4 w-4" />,
+    <KeyRound key="key" className="h-4 w-4" />
+  ];
 
-  // Horizontal layout
   return (
-    <div className="py-6 w-full">
-      <div className="hidden md:flex items-center justify-between relative w-full">
-        {/* Progress bar background */}
-        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-200 -translate-y-1/2" />
-
-        {/* Active progress */}
-        <div
-          className="absolute top-1/2 left-0 h-[2px] bg-blue-500 -translate-y-1/2 transition-all duration-300 ease-in-out"
-          style={{
-            width: `${Math.max(
-              ((currentStep - 1) / (steps.length - 1)) * 100,
-              0
-            )}%`,
-          }}
-        />
-
-        {steps.map((step, index) => (
-          <div
-            key={step.id}
-            className="relative z-10 flex flex-col items-center w-full max-w-[150px]"
-          >
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (canGoToStep(step.id)) {
-                  onStepClick(step.id, e);
-                }
-              }}
-              disabled={!canGoToStep(step.id)}
-              className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200",
-                {
-                  "bg-blue-500 text-white shadow-md": currentStep === step.id,
-                  "bg-green-500 text-white": completedSteps.includes(step.id),
-                  "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-500":
-                    currentStep !== step.id &&
-                    !completedSteps.includes(step.id) &&
-                    canGoToStep(step.id),
-                  "bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed":
-                    !canGoToStep(step.id),
-                }
-              )}
-            >
-              {completedSteps.includes(step.id) ? (
-                <Check className="w-5 h-5" />
-              ) : stepIcons && stepIcons[index] ? (
-                stepIcons[index]
-              ) : (
-                step.id
-              )}
-            </button>
-            <div className="mt-3 text-center w-full">
-              <p
-                className={cn("text-sm font-medium truncate", {
-                  "text-blue-600": currentStep === step.id,
-                  "text-green-600": completedSteps.includes(step.id),
-                  "text-gray-700":
-                    currentStep !== step.id &&
-                    !completedSteps.includes(step.id),
-                })}
-              >
-                {step.title}
-              </p>
-              <p className="text-xs text-gray-500 mt-1 h-8 overflow-hidden">
-                {step.description}
-              </p>
-            </div>
+    <div className="w-full h-full bg-white text-gray-800 flex flex-col shadow-lg">
+      {/* Fixed Header */}
+      <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-b-xl">
+        <h1 className="text-xl lg:text-2xl font-bold">Healthcare Provider</h1>
+        <p className="text-sm opacity-90 mt-1">Complete your registration</p>
+        
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
+            <Clock3 className="w-4 h-4" />
+            <span>10-15 mins</span>
           </div>
-        ))}
+          
+          <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Secure</span>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Easy to complete</span>
+          </div>
+        </div>
       </div>
-
-      {/* Mobile view */}
-      <div className="md:hidden">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-medium text-gray-700">
-            Step {currentStep} of {steps.length}
-          </span>
-          <span className="text-xs font-medium text-blue-600">
-            {steps[currentStep - 1]?.title}
-          </span>
-        </div>
-
-        {/* Mobile progress indicator */}
-        <div className="h-1.5 w-full bg-gray-200 rounded-full">
-          <div
-            className="h-1.5 bg-blue-500 rounded-full transition-all duration-300"
-            style={{
-              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
-            }}
-          />
-        </div>
-
-        <div className="flex overflow-x-auto py-4 gap-3 scrollbar-hide">
-          {steps.map((step, index) => (
-            <button
-              key={step.id}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (canGoToStep(step.id)) {
-                  onStepClick(step.id, e);
-                }
-              }}
-              disabled={!canGoToStep(step.id)}
-              className={cn(
-                "flex flex-col items-center min-w-[70px] px-2",
-                "focus:outline-none"
-              )}
-            >
-              <div
+      
+      {/* Scrollable Steps Section */}
+      <div className="flex-1 overflow-y-auto p-6 pt-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-blue-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <h2 className="text-sm font-medium tracking-wider uppercase text-blue-600 mb-4 sticky top-0 bg-white py-2 -mt-2 -mx-6 px-6 border-b border-gray-100">
+          REGISTRATION STEPS
+        </h2>
+        
+        <div className="space-y-3">
+          {steps.map((step) => {
+            const isActive = step.id === currentStep;
+            const isCompleted = step.id < currentStep;
+            
+            return (
+              <div 
+                key={step.id} 
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium mb-2",
-                  {
-                    "bg-blue-500 text-white": currentStep === step.id,
-                    "bg-green-500 text-white": completedSteps.includes(step.id),
-                    "bg-white border-2 border-gray-300 text-gray-700":
-                      currentStep !== step.id &&
-                      !completedSteps.includes(step.id),
-                    "opacity-50": !canGoToStep(step.id),
-                  }
+                  "flex items-start gap-3 p-3 relative rounded-xl transition-all",
+                  isActive ? "bg-blue-50 border border-blue-100 shadow-sm" : 
+                  isCompleted ? "bg-gray-50" : "hover:bg-gray-50"
                 )}
               >
-                {completedSteps.includes(step.id) ? (
-                  <Check className="w-4 h-4" />
-                ) : stepIcons && stepIcons[index] ? (
-                  stepIcons[index]
-                ) : (
-                  step.id
-                )}
+                <div className="relative">
+                  <div 
+                    className={cn(
+                      "flex items-center justify-center w-8 h-8 rounded-full z-10 relative shadow-sm",
+                      isActive ? "bg-blue-600 text-white" : 
+                      isCompleted ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      step.icon
+                    )}
+                  </div>
+                  
+                  {step.id < steps.length && (
+                    <div className={cn(
+                      "absolute left-4 top-8 w-[2px] h-[calc(100%-4px)]",
+                      isCompleted ? "bg-green-500" : "bg-gray-200"
+                    )} />
+                  )}
+                </div>
+                
+                <div className="pt-1">
+                  <h3 className={cn(
+                    "font-medium",
+                    isActive ? "text-blue-700" : isCompleted ? "text-gray-800" : "text-gray-600"
+                  )}>
+                    {step.title}
+                  </h3>
+                  <p className={cn(
+                    "text-xs",
+                    isActive ? "text-blue-600" : "text-gray-500"
+                  )}>
+                    {step.description}
+                  </p>
+                </div>
               </div>
-              <span
-                className={cn("text-xs text-center truncate w-full", {
-                  "text-blue-600 font-medium": currentStep === step.id,
-                  "text-green-600": completedSteps.includes(step.id),
-                  "text-gray-700":
-                    currentStep !== step.id &&
-                    !completedSteps.includes(step.id),
-                })}
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* Fixed Footer */}
+      <div className="p-6 border-t border-gray-100 mt-auto bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-t-xl">
+        <div className="flex items-center gap-2 text-sm">
+          <Shield className="w-4 h-4" />
+          <span className="font-medium">Secure Registration</span>
+        </div>
+        <p className="text-xs opacity-90 mt-1">Your information is encrypted and protected</p>
+      </div>
+      
+      {/* Mobile Steps - Horizontal Scrolling */}
+      <div className="lg:hidden block p-4 border-t border-gray-100 bg-white overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex gap-3 min-w-max">
+          {steps.map((step, index) => {
+            const isActive = step.id === currentStep;
+            const isCompleted = step.id < currentStep;
+            
+            return (
+              <div 
+                key={step.id} 
+                className={cn(
+                  "flex flex-col items-center w-16",
+                  isActive ? "opacity-100" : "opacity-70"
+                )}
               >
-                {step.title}
-              </span>
-            </button>
-          ))}
+                <div 
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-full mb-1 shadow-sm",
+                    isActive ? "bg-blue-600 text-white" : 
+                    isCompleted ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
+                  )}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : (
+                    mobileIcons[index]
+                  )}
+                </div>
+                <span className="text-[10px] text-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                  {step.title}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

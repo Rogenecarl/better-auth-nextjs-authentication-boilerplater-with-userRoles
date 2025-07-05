@@ -79,9 +79,10 @@ export function Step5BusinessLocation({ form }: Props) {
           name="latitude"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Latitude</FormLabel>
+              <FormLabel htmlFor="latitude" className="text-sm font-medium text-gray-700">Latitude</FormLabel>
               <FormControl>
                 <Input
+                  id="latitude"
                   type="number"
                   // `step="any"` is the standard way to allow floating-point numbers.
                   step="any"
@@ -102,9 +103,10 @@ export function Step5BusinessLocation({ form }: Props) {
           name="longitude"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Longitude</FormLabel>
+              <FormLabel htmlFor="longitude" className="text-sm font-medium text-gray-700">Longitude</FormLabel>
               <FormControl>
                 <Input
+                  id="longitude"
                   type="number"
                   step="any"
                   placeholder="e.g., 125.365847"

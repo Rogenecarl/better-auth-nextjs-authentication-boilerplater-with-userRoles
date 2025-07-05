@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ProviderType } from "@/generated/prisma";
 
 // --- Helper for File Validation ---
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -15,7 +15,7 @@ const fileSchema = (acceptedTypes: string[]) =>
   z
     .any()
     .refine((file) => file?.name, "This field is required.")
-    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max file size is 4MB.`)
     .refine(
       (file) => acceptedTypes.includes(file?.type),
       `Accepted formats: ${acceptedTypes
